@@ -1,0 +1,17 @@
+{
+  "name": "fey",
+  "version": "1.0.0",
+  "private": true,
+  "description": "fey — an anchored, explainable codebase wiki. Every doc claim links to a live code span. Drop this folder into any repo and drive it with GitHub Copilot.",
+  "bin": {
+    "fey": "bin/fey.js"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "index": "node bin/fey.js index",
+    "serve": "node bin/fey.js serve"
+  },
+  "optionalDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

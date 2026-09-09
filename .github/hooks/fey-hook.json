@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js sessionStart",
+        "powershell": "node ./.github/hooks/fey-hook.js sessionStart",
+        "timeoutSec": 30
+      }
+    ],
+    "preToolUse": [
+      {
+        "type": "command",
+        "matcher": "bash|powershell|shell|edit|create|apply_patch|write",
+        "bash": "node ./.github/hooks/fey-hook.js preToolUse",
+        "powershell": "node ./.github/hooks/fey-hook.js preToolUse",
+        "timeoutSec": 30
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "matcher": "edit|create|apply_patch|write",
+        "bash": "node ./.github/hooks/fey-hook.js postToolUse",
+        "powershell": "node ./.github/hooks/fey-hook.js postToolUse",
+        "timeoutSec": 60
+      }
+    ],
+    "postToolUseFailure": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js postToolUseFailure",
+        "powershell": "node ./.github/hooks/fey-hook.js postToolUseFailure",
+        "timeoutSec": 30
+      }
+    ],
+    "subagentStart": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js subagentStart",
+        "powershell": "node ./.github/hooks/fey-hook.js subagentStart",
+        "timeoutSec": 30
+      }
+    ],
+    "subagentStop": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js subagentStop",
+        "powershell": "node ./.github/hooks/fey-hook.js subagentStop",
+        "timeoutSec": 30
+      }
+    ],
+    "agentStop": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js agentStop",
+        "powershell": "node ./.github/hooks/fey-hook.js agentStop",
+        "timeoutSec": 130
+      }
+    ],
+    "errorOccurred": [
+      {
+        "type": "command",
+        "bash": "node ./.github/hooks/fey-hook.js errorOccurred",
+        "powershell": "node ./.github/hooks/fey-hook.js errorOccurred",
+        "timeoutSec": 30
+      }
+    ]
+  }
+}

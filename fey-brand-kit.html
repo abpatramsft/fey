@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fey — brand kit v0.1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --board:#0E1A15;      /* chalkboard base */
+    --board-2:#16241E;    /* raised surface */
+    --chalk:#ECE7D9;      /* main text / lines */
+    --chalk-dim:#8A9A8F;  /* faded chalk / secondary */
+    --amber:#F4B84E;      /* fermion · create */
+    --sky:#67C1E0;        /* photon · optimise */
+    --line:rgba(236,231,217,.12);
+    --display:"Space Grotesk", system-ui, sans-serif;
+    --body:"IBM Plex Sans", system-ui, sans-serif;
+    --mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--board);
+    color:var(--chalk);
+    font-family:var(--body);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    /* faint chalkboard grid */
+    background-image:
+      linear-gradient(rgba(236,231,217,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(236,231,217,.025) 1px, transparent 1px);
+    background-size:28px 28px;
+  }
+
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+  /* ---- top bar ---- */
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid var(--line)}
+  .bar .mini{display:flex;align-items:center;gap:12px}
+  .bar svg{display:block}
+  .tag{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--chalk-dim)}
+
+  /* ---- section scaffolding ---- */
+  .section{padding:88px 0;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--sky);margin:0 0 18px}
+  h2{font-family:var(--display);font-weight:500;font-size:clamp(24px,3.4vw,34px);letter-spacing:-.01em;margin:0 0 14px}
+  .lead{color:var(--chalk-dim);max-width:60ch;margin:0 0 34px;font-size:16px}
+  p{margin:0 0 14px}
+
+  /* ---- hero ---- */
+  .hero{padding:84px 0 92px;text-align:left}
+  .hero-logo{width:min(520px,86vw);height:auto;margin:0 0 40px}
+  .quote{font-family:var(--display);font-weight:400;font-size:clamp(22px,3.6vw,38px);line-height:1.22;letter-spacing:-.015em;max-width:20ch;margin:0 0 20px}
+  .quote .who{display:block;font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--chalk-dim);margin-top:16px}
+  .hero-sub{color:var(--chalk-dim);max-width:56ch;font-size:16.5px}
+  .hero-sub b{color:var(--chalk);font-weight:600}
+
+  /* ---- logo system grid ---- */
+  .grid{display:grid;gap:20px}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .panel{background:var(--board-2);border:1px solid var(--line);border-radius:14px;padding:30px;display:flex;flex-direction:column;gap:14px;justify-content:center;min-height:180px}
+  .panel.center{align-items:center;text-align:center}
+  .panel.light{background:var(--chalk)}
+  .panel .cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;color:var(--chalk-dim);text-transform:uppercase}
+  .panel.light .cap{color:#5b6b60}
+
+  /* ---- grammar rows ---- */
+  .rule{display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:center;padding:26px 0;border-top:1px solid var(--line)}
+  .rule:last-child{border-bottom:1px solid var(--line)}
+  .rule h3{font-family:var(--display);font-weight:500;font-size:20px;margin:0 0 6px}
+  .rule .cmd{font-family:var(--mono);font-size:13px;margin:0 0 8px}
+  .rule.create .cmd{color:var(--amber)} .rule.optimise .cmd{color:var(--sky)}
+  .rule p{color:var(--chalk-dim);margin:0;max-width:52ch}
+  .diagram{background:var(--board-2);border:1px solid var(--line);border-radius:12px;height:96px;display:flex;align-items:center;justify-content:center}
+
+  /* ---- palette ---- */
+  .swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .sw{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--board-2)}
+  .sw .chip{height:96px}
+  .sw .meta{padding:14px 16px}
+  .sw .nm{font-family:var(--display);font-weight:500;font-size:15px;margin:0 0 4px}
+  .sw .hex{font-family:var(--mono);font-size:12.5px;color:var(--chalk-dim);text-transform:uppercase;letter-spacing:.04em}
+  .sw .role{font-family:var(--mono);font-size:11px;color:var(--chalk-dim);margin-top:6px;display:block}
+
+  /* ---- type ---- */
+  .type-row{border-top:1px solid var(--line);padding:26px 0;display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:baseline}
+  .type-row:last-child{border-bottom:1px solid var(--line)}
+  .type-row .label{font-family:var(--mono);font-size:12px;color:var(--chalk-dim);letter-spacing:.04em}
+  .type-row .label span{display:block;color:var(--chalk);margin-bottom:4px}
+  .spec-display{font-family:var(--display);font-weight:500;font-size:clamp(26px,4vw,40px);letter-spacing:-.02em;line-height:1.1}
+  .spec-body{font-family:var(--body);font-size:18px;max-width:54ch;color:var(--chalk)}
+  .spec-mono{font-family:var(--mono);font-size:17px;color:var(--chalk)}
+  .glyphs{font-family:var(--display);letter-spacing:.06em;color:var(--chalk-dim);font-size:14px;margin-top:8px}
+
+  /* ---- command chips ---- */
+  .chips{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px}
+  .chip-cmd{font-family:var(--mono);font-size:15px;padding:11px 16px;border-radius:10px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:10px;background:var(--board-2)}
+  .chip-cmd .dot{width:8px;height:8px;border-radius:50%}
+  .chip-cmd.create{color:var(--amber)} .chip-cmd.create .dot{background:var(--amber)}
+  .chip-cmd.optimise{color:var(--sky)} .chip-cmd.optimise .dot{background:var(--sky)}
+
+  /* ---- footer ---- */
+  .foot{padding:64px 0 80px;text-align:center;color:var(--chalk-dim)}
+  .foot .scatter{width:min(360px,80vw);height:auto;margin:0 auto 26px;display:block}
+  .foot .fmono{font-family:var(--mono);font-size:12px;letter-spacing:.05em}
+
+  /* ---- svg stroke defaults ---- */
+  .mono-chalk{stroke:var(--chalk)} .stroke-board{stroke:var(--board)}
+
+  @media (max-width:720px){
+    .cols-2,.cols-3{grid-template-columns:1fr}
+    .swatches{grid-template-columns:1fr 1fr}
+    .rule,.type-row{grid-template-columns:1fr;gap:14px}
+    .diagram{height:84px}
+    .section{padding:64px 0}
+  }
+
+  /* ---- hero draw-in ---- */
+  @media (prefers-reduced-motion:no-preference){
+    .hero-logo .ink{stroke-dasharray:340;stroke-dashoffset:340;animation:draw 1s ease forwards}
+    .hero-logo .p1{animation-delay:.05s}.hero-logo .p2{animation-delay:.15s}
+    .hero-logo .p3{animation-delay:.25s}.hero-logo .p4{animation-delay:.35s}
+    .hero-logo .p5{animation-delay:.45s}.hero-logo .p6{animation-delay:.55s}
+    .hero-logo .p7{animation-delay:.62s}.hero-logo .p8{animation-delay:.7s}
+    .hero-logo .p9{animation-delay:.8s}
+    .hero-logo .vtx{transform:scale(0);transform-box:fill-box;transform-origin:center;animation:pop .5s cubic-bezier(.2,1.4,.4,1) .9s forwards}
+  }
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes pop{to{transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<!-- reusable small mark for the top bar -->
+<div class="wrap">
+  <div class="bar">
+    <div class="mini">
+      <svg width="34" height="34" viewBox="0 0 100 100" aria-label="fey mark">
+        <polyline points="46,84 46,67 46,50" fill="none" stroke="#ECE7D9" stroke-width="7" stroke-linecap="round" marker-mid="url(#am)"/>
+        <polyline points="46,50 46,33 46,16" fill="none" stroke="#ECE7D9" stroke-width="7" stroke-linecap="round" marker-mid="url(#am)"/>
+        <path d="M46,50 q7,-8 14,0 q7,8 14,0 q7,-8 14,0" fill="none" stroke="#67C1E0" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="46" cy="50" r="7" fill="#F4B84E"/>
+        <defs><marker id="am" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ECE7D9"/></marker></defs>
+      </svg>
+      <span class="tag">fey</span>
+    </div>
+    <span class="tag">brand kit · v0.1</span>
+  </div>
+</div>
+
+<!-- ===================== HERO ===================== -->
+<header class="wrap hero">
+  <!-- PRIMARY WORDMARK -->
+  <svg class="hero-logo" viewBox="0 0 400 172" aria-label="fey logotype" role="img">
+    <g fill="none" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+      <!-- F -->
+      <path class="ink p1 mono-chalk" d="M47,34 V138"/>
+      <path class="ink p2 mono-chalk" d="M47,34 H116"/>
+      <path class="ink p3 mono-chalk" d="M47,86 H100"/>
+      <!-- E -->
+      <path class="ink p4 mono-chalk" d="M156,34 V138"/>
+      <path class="ink p5 mono-chalk" d="M156,34 H225"/>
+      <path class="ink p6 mono-chalk" d="M156,86 H210"/>
+      <path class="ink p7 mono-chalk" d="M156,138 H225"/>
+      <!-- Y as a Feynman vertex: two straight fermion arms, wavy photon stem -->
+      <path class="ink p8 mono-chalk" d="M266,34 L303,92"/>
+      <path class="ink p9 mono-chalk" d="M340,34 L303,92"/>
+      <path d="M303,92 q10,7 0,15 q-10,8 0,15 q10,8 0,16" stroke="#67C1E0"/>
+    </g>
+    <circle class="vtx" cx="303" cy="92" r="9" fill="#F4B84E"/>
+  </svg>
+
+  <p class="quote">What I cannot create, I do not understand.
+    <span class="who">— Richard Feynman, on his blackboard, 1988</span>
+  </p>
+  <p class="hero-sub"><b>fey</b> reads the codebase your agents built and hands it back as something you can hold in your head — a wiki, your API flows drawn as Feynman diagrams, and the reasoning behind every commit.</p>
+</header>
+
+<!-- ===================== THE MARK ===================== -->
+<section class="section wrap">
+  <p class="eyebrow">The mark</p>
+  <h2>A vertex, not a monogram</h2>
+  <p class="lead">The logotype is drawn in one continuous chalk weight. The <b>Y</b> is a Feynman vertex — the point where lines meet, where particles are created. One amber dot marks it. That dot is the only spot of colour the wordmark needs.</p>
+
+  <div class="grid cols-2">
+    <div class="panel center">
+      <svg width="260" height="112" viewBox="0 0 400 172" aria-label="wordmark on board">
+        <g fill="none" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" stroke="#ECE7D9">
+          <path d="M47,34 V138"/><path d="M47,34 H116"/><path d="M47,86 H100"/>
+          <path d="M156,34 V138"/><path d="M156,34 H225"/><path d="M156,86 H210"/><path d="M156,138 H225"/>
+          <path d="M266,34 L303,92"/><path d="M340,34 L303,92"/>
+          <path d="M303,92 q10,7 0,15 q-10,8 0,15 q10,8 0,16" stroke="#67C1E0"/>
+        </g>
+        <circle cx="303" cy="92" r="9" fill="#F4B84E"/>
+      </svg>
+      <span class="cap">primary · on board</span>
+    </div>
+    <div class="panel light center">
+      <svg width="260" height="112" viewBox="0 0 400 172" aria-label="wordmark on chalk">
+        <g fill="none" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" stroke="#0E1A15">
+          <path d="M47,34 V138"/><path d="M47,34 H116"/><path d="M47,86 H100"/>
+          <path d="M156,34 V138"/><path d="M156,34 H225"/><path d="M156,86 H210"/><path d="M156,138 H225"/>
+          <path d="M266,34 L303,92"/><path d="M340,34 L303,92"/>
+          <path d="M303,92 q10,7 0,15 q-10,8 0,15 q10,8 0,16"/>
+        </g>
+        <circle cx="303" cy="92" r="9" fill="#F4B84E"/>
+      </svg>
+      <span class="cap">inverted · on chalk</span>
+    </div>
+  </div>
+
+  <div class="grid cols-3" style="margin-top:20px">
+    <div class="panel center">
+      <svg width="86" height="86" viewBox="0 0 100 100" aria-label="app icon">
+        <rect x="2" y="2" width="96" height="96" rx="22" fill="#16241E" stroke="rgba(236,231,217,.12)"/>
+        <polyline points="46,80 46,66 46,52" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round" marker-mid="url(#ai)"/>
+        <polyline points="46,52 46,38 46,24" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round" marker-mid="url(#ai)"/>
+        <path d="M46,52 q6.5,-8 13,0 q6.5,8 13,0 q6.5,-8 13,0" fill="none" stroke="#67C1E0" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="46" cy="52" r="6.5" fill="#F4B84E"/>
+        <defs><marker id="ai" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ECE7D9"/></marker></defs>
+      </svg>
+      <span class="cap">app icon</span>
+    </div>
+    <div class="panel center">
+      <svg width="86" height="86" viewBox="0 0 100 100" aria-label="icon on amber">
+        <rect x="2" y="2" width="96" height="96" rx="22" fill="#F4B84E"/>
+        <polyline points="46,80 46,66 46,52" fill="none" stroke="#0E1A15" stroke-width="6" stroke-linecap="round" marker-mid="url(#ab)"/>
+        <polyline points="46,52 46,38 46,24" fill="none" stroke="#0E1A15" stroke-width="6" stroke-linecap="round" marker-mid="url(#ab)"/>
+        <path d="M46,52 q6.5,-8 13,0 q6.5,8 13,0 q6.5,-8 13,0" fill="none" stroke="#0E1A15" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="46" cy="52" r="6.5" fill="#0E1A15"/>
+        <defs><marker id="ab" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0E1A15"/></marker></defs>
+      </svg>
+      <span class="cap">icon · reversed</span>
+    </div>
+    <div class="panel center">
+      <svg width="86" height="86" viewBox="0 0 100 100" aria-label="favicon mono">
+        <rect x="2" y="2" width="96" height="96" rx="22" fill="#0E1A15" stroke="rgba(236,231,217,.12)"/>
+        <polyline points="46,80 46,66 46,52" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round" marker-mid="url(#af)"/>
+        <polyline points="46,52 46,38 46,24" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round" marker-mid="url(#af)"/>
+        <path d="M46,52 q6.5,-8 13,0 q6.5,8 13,0 q6.5,-8 13,0" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="46" cy="52" r="6.5" fill="#ECE7D9"/>
+        <defs><marker id="af" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ECE7D9"/></marker></defs>
+      </svg>
+      <span class="cap">favicon · 1-colour</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE GRAMMAR ===================== -->
+<section class="section wrap">
+  <p class="eyebrow">The grammar</p>
+  <h2>Two lines carry the whole system</h2>
+  <p class="lead">Every Feynman diagram is built from two kinds of line. fey borrows them as its two verbs — so the visual language and the product map to each other exactly.</p>
+
+  <div class="rule create">
+    <div class="diagram">
+      <svg width="150" height="44" viewBox="0 0 150 44" aria-label="fermion line">
+        <polyline points="14,22 75,22 136,22" fill="none" stroke="#F4B84E" stroke-width="5" stroke-linecap="round" marker-mid="url(#fm)"/>
+        <defs><marker id="fm" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F4B84E"/></marker></defs>
+      </svg>
+    </div>
+    <div>
+      <h3>Fermion — a directed line</h3>
+      <p class="cmd">fey:create</p>
+      <p>Solid, with an arrow: it goes somewhere. You make the thing — the wiki, the diagrams, the commit rationale — and understanding follows creation.</p>
+    </div>
+  </div>
+
+  <div class="rule optimise">
+    <div class="diagram">
+      <svg width="150" height="44" viewBox="0 0 150 44" aria-label="photon line">
+        <path d="M14,22 q11,-11 22,0 q11,11 22,0 q11,-11 22,0 q11,11 22,0 q11,-11 22,0" fill="none" stroke="#67C1E0" stroke-width="5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Photon — an exchange</h3>
+      <p class="cmd">fey:optimise</p>
+      <p>Wavy, no arrow: it's a back-and-forth. fey trades against the metrics it finds and hill-climbs — tightening code and commit history without losing the thread.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PALETTE ===================== -->
+<section class="section wrap">
+  <p class="eyebrow">Palette · colored chalk on slate</p>
+  <h2>Drawn, not printed</h2>
+  <p class="lead">A blackboard green — warmer and softer than pure black — with chalk white for lines and text. Two pieces of colored chalk do all the accent work, one per verb.</p>
+
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#0E1A15;border-bottom:1px solid var(--line)"></div><div class="meta"><p class="nm">Board</p><span class="hex">#0E1A15</span><span class="role">base · canvas</span></div></div>
+    <div class="sw"><div class="chip" style="background:#16241E"></div><div class="meta"><p class="nm">Board Raised</p><span class="hex">#16241E</span><span class="role">panels · surfaces</span></div></div>
+    <div class="sw"><div class="chip" style="background:#ECE7D9"></div><div class="meta"><p class="nm">Chalk</p><span class="hex">#ECE7D9</span><span class="role">lines · primary text</span></div></div>
+    <div class="sw"><div class="chip" style="background:#8A9A8F"></div><div class="meta"><p class="nm">Faded Chalk</p><span class="hex">#8A9A8F</span><span class="role">secondary text</span></div></div>
+    <div class="sw"><div class="chip" style="background:#F4B84E"></div><div class="meta"><p class="nm">Fermion Amber</p><span class="hex">#F4B84E</span><span class="role">create · the vertex</span></div></div>
+    <div class="sw"><div class="chip" style="background:#67C1E0"></div><div class="meta"><p class="nm">Photon Sky</p><span class="hex">#67C1E0</span><span class="role">optimise · flow</span></div></div>
+  </div>
+</section>
+
+<!-- ===================== TYPOGRAPHY ===================== -->
+<section class="section wrap">
+  <p class="eyebrow">Typography</p>
+  <h2>Engineer's hand</h2>
+  <p class="lead">A display face with a little personality, a scientific-lineage body, and a mono for the thing the product is actually made of — commands, hashes, metrics.</p>
+
+  <div class="type-row">
+    <div class="label"><span>Space Grotesk</span>display · 500</div>
+    <div class="spec-display">Understand the code your agents wrote.</div>
+  </div>
+  <div class="type-row">
+    <div class="label"><span>IBM Plex Sans</span>body · 400 / 600</div>
+    <div class="spec-body">fey turns a pile of unreviewed commits into a wiki you can read, then explains why each change was made — in your repo, before you ship.</div>
+  </div>
+  <div class="type-row">
+    <div class="label"><span>IBM Plex Mono</span>utility · 400 / 500</div>
+    <div>
+      <p class="spec-mono">$ fey:create --scope ./src&nbsp;&nbsp;<span style="color:var(--chalk-dim)"># commit a1f9c3 → rationale ✓</span></p>
+      <p class="glyphs">A B C D E F G · a b c d e f g · 0 1 2 3 4 5 6 7 8 9 · : / — &lt; &gt; { }</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMMANDS ===================== -->
+<section class="section wrap">
+  <p class="eyebrow">Commands</p>
+  <h2>Two verbs, one philosophy</h2>
+  <p class="lead">Everything fey does resolves to one of two commands. Amber creates; sky refines. Keep them in mono, always lowercase, always with the colon.</p>
+
+  <div class="chips">
+    <span class="chip-cmd create"><span class="dot"></span>fey:create</span>
+    <span class="chip-cmd optimise"><span class="dot"></span>fey:optimise</span>
+  </div>
+  <p style="color:var(--chalk-dim);max-width:56ch;margin-top:18px">
+    <b style="color:var(--amber);font-weight:600">create</b> builds the wiki, draws the API flows as Feynman diagrams, and reconstructs commit rationale.
+    <b style="color:var(--sky);font-weight:600">optimise</b> reads the metrics and hill-climbs on the code and the history.
+  </p>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="wrap foot">
+  <svg class="scatter" viewBox="0 0 400 120" aria-label="scattering diagram">
+    <g fill="none" stroke-width="4.5" stroke-linecap="round">
+      <polyline points="70,25 115,42 160,60" stroke="#ECE7D9" marker-mid="url(#sc)"/>
+      <polyline points="70,95 115,78 160,60" stroke="#ECE7D9" marker-mid="url(#sc)"/>
+      <polyline points="240,60 285,42 330,25" stroke="#ECE7D9" marker-mid="url(#sc)"/>
+      <polyline points="240,60 285,78 330,95" stroke="#ECE7D9" marker-mid="url(#sc)"/>
+      <path d="M160,60 q10,-10 20,0 q10,10 20,0 q10,-10 20,0 q10,10 20,0" stroke="#67C1E0"/>
+    </g>
+    <circle cx="160" cy="60" r="6" fill="#F4B84E"/>
+    <circle cx="240" cy="60" r="6" fill="#F4B84E"/>
+    <defs><marker id="sc" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.6" markerHeight="4.6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ECE7D9"/></marker></defs>
+  </svg>
+  <p class="fmono">fey · what i cannot create, i do not understand</p>
+</footer>
+
+</body>
+</html>

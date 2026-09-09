@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fey — explainable codebase wiki</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230E1A15'/%3E%3Cpolyline points='46,80 46,66 46,52' fill='none' stroke='%23ECE7D9' stroke-width='6' stroke-linecap='round'/%3E%3Cpolyline points='46,52 46,38 46,24' fill='none' stroke='%23ECE7D9' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M46,52 q6.5,-8 13,0 q6.5,8 13,0 q6.5,-8 13,0' fill='none' stroke='%2367C1E0' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='46' cy='52' r='6.5' fill='%23F4B84E'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="26" height="26" viewBox="0 0 100 100">
+              <polyline points="46,84 46,67 46,50" fill="none" stroke="#ECE7D9" stroke-width="7" stroke-linecap="round" marker-mid="url(#fm-am)"/>
+              <polyline points="46,50 46,33 46,16" fill="none" stroke="#ECE7D9" stroke-width="7" stroke-linecap="round" marker-mid="url(#fm-am)"/>
+              <path d="M46,50 q7,-8 14,0 q7,8 14,0 q7,-8 14,0" fill="none" stroke="#67C1E0" stroke-width="7" stroke-linecap="round"/>
+              <circle cx="46" cy="50" r="7" fill="#F4B84E"/>
+              <defs><marker id="fm-am" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.4" markerHeight="4.4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#ECE7D9"/></marker></defs>
+            </svg>
+          </span>
+          <span class="brand-name">fey</span>
+          <span class="repo-chip mono" id="repo-chip">—</span>
+        </div>
+        <nav class="tabs" id="tabs">
+          <a class="tab" data-view="overview" href="#/overview">Overview</a>
+          <a class="tab" data-view="wiki" href="#/wiki">Wiki</a>
+          <a class="tab" data-view="diagrams" href="#/diagrams">Diagrams</a>
+          <a class="tab" data-view="drift" href="#/drift">Drift<span class="drift-badge" id="drift-badge" hidden>0</span></a>
+          <a class="tab" data-view="optimize" href="#/optimize">Optimize</a>
+        </nav>
+        <div class="topmeta mono">
+          <span id="branch">main</span>
+        </div>
+      </header>
+
+      <div class="body">
+        <aside class="rail">
+          <div class="search">
+            <input class="mono" id="search" placeholder="Filter pages…" />
+            <kbd class="mono">⌘K</kbd>
+          </div>
+          <nav class="wiki-nav" id="wiki-nav"></nav>
+          <div class="rail-foot" id="rail-foot"></div>
+        </aside>
+
+        <main class="stage" id="stage"></main>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

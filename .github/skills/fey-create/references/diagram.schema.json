@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "fey flow diagram (anchored)",
+  "description": "One entry-point flow, parsed from source (never run). Every node is anchored to a real span id from .fey/create/manifest.json, so the viewer can light the exact code a node stands for — the same anchor-then-generate rule as the wiki. `fey diagrams build` validates this shape and every anchor before writing. One entry point = one file = one diagram.",
+  "type": "object",
+  "required": ["id", "entry", "title", "kind", "lanes", "nodes"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable slug for this diagram (kebab-case), unique across the run. Becomes the file name and the URL, e.g. 'post-checkout'.",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "entry": {
+      "type": "string",
+      "description": "How control enters, in the reader's terms: 'POST /checkout', 'cli: migrate', 'main()', 'onMessage(order.created)'."
+    },
+    "title": {
+      "type": "string",
+      "description": "Short human title for the flow, e.g. 'Checkout request'."
+    },
+    "kind": {
+      "type": "string",
+      "description": "Entry-point family. Free-form but prefer one of the enum values for consistent grouping in the nav.",
+      "enum": ["http-route", "cli", "main", "handler", "export", "job", "test", "other"]
+    },
+    "language": {
+      "type": "string",
+      "description": "Source language, informational only (e.g. 'python', 'go', 'typescript')."
+    },
+    "summary": {
+      "type": "string",
+      "description": "1-3 plain sentences: what this flow does end to end. Shown above the diagram."
+    },
+    "lanes": {
+      "type": "array",
+      "description": "The worldlines — coarse groupings that each become one vertical lane. A dozen lanes reads well; a hundred does not. Group by module/package/directory/layer, NOT one lane per file. Every node's `lane` must reference a lane `id` here.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": {"type": "string", "description": "Lane id referenced by nodes, e.g. 'api'."},
+          "label": {"type": "string", "description": "Display label, e.g. 'api/routes'."},
+          "kind": {"type": "string", "description": "Optional: what this lane groups — 'module' | 'package' | 'layer' | 'class' | 'external'."}
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "description": "The ordered call path. Each node is one call; `parent`+`order` form the tree the renderer draws as exchanges down the page.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "lane", "order"],
+        "properties": {
+          "id": {"type": "string", "description": "Node id, unique within this diagram (e.g. 'n0')."},
+          "name": {"type": "string", "description": "Function/method called, e.g. 'validate_cart'."},
+          "lane": {"type": "string", "description": "The lane id this node lives on (must exist in `lanes`)."},
+          "anchor": {
+            "type": "string",
+            "description": "Span id from manifest.spans ('<file>#<Symbol>') OR a line-range anchor ('<file>#L<start>-<end>'). Required for resolved:true nodes; the viewer lights this code when the node is clicked. Omit only when resolved is false."
+          },
+          "parent": {"type": ["string", "null"], "description": "Node id of the caller, or null for the entry node. Must form a tree (no cycles)."},
+          "order": {"type": "integer", "description": "Sequence index along the path (0-based). Determines vertical position; the entry node is order 0."},
+          "resolved": {"type": "boolean", "description": "false when the callee could not be tied to a definition (dynamic dispatch, reflection, external lib). Renders dashed and needs no anchor. Defaults to true."},
+          "note": {"type": "string", "description": "Optional one-line gloss shown on hover, e.g. 'raises on empty cart'."}
+        }
+      }
+    },
+    "branches": {
+      "type": "array",
+      "description": "Optional alternate arms from the SAME entry point (error path, cache miss, retry) — the sum-over-diagrams family. Each item is a partial flow: a `label` plus its own `nodes` (same node shape). Static parsing can enumerate arms but not say which fires most often.",
+      "items": {
+        "type": "object",
+        "required": ["label", "nodes"],
+        "properties": {
+          "label": {"type": "string"},
+          "nodes": {"type": "array", "items": {"type": "object"}}
+        }
+      }
+    }
+  }
+}
