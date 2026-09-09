@@ -80,6 +80,21 @@ def main() -> None:
         assert page.locator('[data-view-panel="diagrams"]').is_visible()
         page.screenshot(path=str(ARTIFACT_DIR / "home-desktop.png"), full_page=True)
 
+        page.set_viewport_size({"width": 2000, "height": 1150})
+        load(page, "index.html")
+        hero_copy = page.locator(".hero-copy").bounding_box()
+        hero_map = page.locator(".feynman-stage").bounding_box()
+        assert hero_copy is not None and hero_map is not None
+        assert hero_map["x"] >= hero_copy["x"] + hero_copy["width"] + 40
+        assert page.locator(".hero-copy h1").evaluate(
+            "(element) => element.scrollWidth <= element.clientWidth + 1"
+        )
+        assert page.locator(".feynman-stage").evaluate(
+            "(element) => getComputedStyle(element).borderTopWidth"
+        ) == "0px"
+        assert page.locator(".feynman-core-label img").is_visible()
+        page.locator(".hero").screenshot(path=str(ARTIFACT_DIR / "hero-wide.png"))
+
         page.set_viewport_size({"width": 1000, "height": 900})
         load(page, "index.html")
         hero_copy = page.locator(".hero-copy").bounding_box()

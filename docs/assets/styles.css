@@ -286,24 +286,38 @@ button {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(520px, 7fr);
+  grid-template-columns: minmax(0, 1fr) minmax(600px, 1.05fr);
   align-items: center;
-  gap: 68px;
+  gap: 60px;
   min-height: calc(100vh - var(--header-h));
   padding-block: 82px 90px;
 }
 
+.hero-copy {
+  position: relative;
+  z-index: 5;
+  min-width: 0;
+}
+
 .hero-copy h1 {
-  max-width: 760px;
+  max-width: 100%;
   margin: 0;
   font-family: var(--display);
-  font-size: clamp(54px, 6.3vw, 88px);
+  font-size: clamp(52px, 5.4vw, 78px);
   font-weight: 500;
   letter-spacing: -0.065em;
   line-height: 0.96;
 }
 
-.hero-copy h1 span {
+.hero-title-line {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  color: var(--chalk);
+  white-space: nowrap;
+}
+
+.hero-copy h1 .hero-title-accent {
   color: var(--amber);
 }
 
@@ -427,38 +441,14 @@ button {
 
 .feynman-stage {
   position: relative;
-  min-height: 570px;
-  overflow: hidden;
-  border: 1px solid var(--rule-dark-strong);
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(rgba(236, 231, 217, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(236, 231, 217, 0.022) 1px, transparent 1px),
-    var(--board-raised);
-  background-size: 22px 22px;
-  box-shadow: 0 36px 100px rgba(0, 0, 0, 0.26);
-}
-
-.feynman-stage-head {
-  position: relative;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  padding: 0 16px;
-  color: var(--chalk-faint);
-  border-bottom: 1px solid var(--rule-dark);
-  background: rgba(9, 19, 15, 0.42);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  z-index: 2;
+  min-height: 550px;
+  overflow: visible;
 }
 
 .feynman-field {
   position: relative;
-  min-height: 520px;
+  min-height: 550px;
 }
 
 .feynman-map {
@@ -586,7 +576,7 @@ button {
 }
 
 .feynman-source,
-.feynman-core-label,
+.feynman-core-unit,
 .feynman-node {
   position: absolute;
   z-index: 3;
@@ -598,11 +588,9 @@ button {
   width: 150px;
   padding: 11px 12px;
   border-left: 2px solid var(--chalk);
-  background: rgba(9, 19, 15, 0.72);
 }
 
 .feynman-source span,
-.feynman-core-label small,
 .feynman-node .node-index {
   display: block;
   color: var(--chalk-faint);
@@ -628,41 +616,57 @@ button {
   font-size: 8px;
 }
 
-.feynman-core-label {
-  top: 43.5%;
-  left: 35.5%;
+.feynman-core-unit {
+  top: 50%;
+  left: 42.5%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 132px;
-  padding: 9px 10px;
-  text-align: center;
+  transform: translate(-50%, -50%);
   pointer-events: none;
 }
 
-.feynman-core-label span {
-  display: block;
-  color: var(--chalk);
-  font-family: var(--display);
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.04em;
+.feynman-core-label {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  padding: 7px;
+  border: 1px solid var(--rule-dark-strong);
+  border-radius: 19px;
+  background: var(--board-deep);
+  box-shadow: 0 0 0 8px rgba(14, 26, 21, 0.72);
 }
 
-.feynman-core-label small {
-  margin-top: 2px;
+.feynman-core-label img {
+  width: 56px;
+  height: 56px;
+}
+
+.feynman-core-caption {
+  display: block;
+  margin-top: 12px;
+  padding: 4px 7px;
   color: var(--chalk-muted);
+  background: rgba(14, 26, 21, 0.88);
+  font-family: var(--mono);
+  font-size: 8px;
   letter-spacing: 0.04em;
-  text-transform: none;
+  white-space: nowrap;
 }
 
 .feynman-node {
   width: 205px;
-  min-height: 92px;
-  padding: 13px 14px 12px 17px;
+  min-height: 82px;
+  padding: 11px 10px 11px 17px;
   color: var(--chalk);
-  border: 1px solid var(--rule-dark);
-  border-radius: 6px;
-  background: rgba(9, 19, 15, 0.82);
-  backdrop-filter: blur(7px);
-  transition: color 220ms ease, border-color 220ms ease, background 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+  border: 0;
+  border-left: 1px solid var(--rule-dark-strong);
+  border-radius: 0;
+  background: transparent;
+  transition: color 220ms ease, border-color 220ms ease, background 220ms ease, transform 220ms ease;
 }
 
 .feynman-node::before {
@@ -671,7 +675,7 @@ button {
   left: -5px;
   width: 8px;
   height: 8px;
-  border: 2px solid var(--board-raised);
+  border: 2px solid var(--board);
   border-radius: 50%;
   background: var(--chalk);
   content: "";
@@ -699,10 +703,9 @@ button {
 .feynman-node:focus-visible,
 .feynman-node.is-active {
   color: var(--chalk-bright);
-  border-color: var(--rule-dark-strong);
-  background: rgba(29, 48, 39, 0.96);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
-  transform: translateY(-2px);
+  border-left-color: currentColor;
+  background: linear-gradient(90deg, rgba(29, 48, 39, 0.7), transparent);
+  transform: translateX(4px);
 }
 
 .node-wiki {
@@ -2241,7 +2244,7 @@ button {
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1240px) {
   .hero-grid {
     grid-template-columns: 1fr;
     gap: 52px;
@@ -2440,15 +2443,6 @@ button {
     min-height: 0;
   }
 
-  .feynman-stage-head {
-    min-height: 44px;
-    padding-inline: 13px;
-  }
-
-  .feynman-stage-head span:last-child {
-    display: none;
-  }
-
   .feynman-field {
     display: grid;
     grid-template-columns: 1fr;
@@ -2462,43 +2456,56 @@ button {
   }
 
   .feynman-source,
-  .feynman-core-label,
+  .feynman-core-unit,
   .feynman-node {
     position: relative;
     inset: auto;
     width: 100%;
+    transform: none;
   }
 
   .feynman-source {
     padding: 13px 14px;
-    border: 1px solid var(--rule-dark);
+    border: 0;
     border-left: 3px solid var(--chalk);
-    background: var(--board-deep);
   }
 
-  .feynman-core-label {
+  .feynman-core-unit {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 16px 14px;
-    border: 1px solid rgba(244, 184, 78, 0.28);
-    border-radius: 6px;
-    background: var(--amber-wash);
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-left: 3px solid var(--amber);
     text-align: left;
   }
 
-  .feynman-core-label span {
-    color: var(--amber);
+  .feynman-core-label {
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+    border-radius: 14px;
+    box-shadow: none;
   }
 
-  .feynman-core-label small {
+  .feynman-core-label img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .feynman-core-caption {
     margin: 0;
+    padding: 0;
+    color: var(--chalk-muted);
+    background: transparent;
   }
 
   .feynman-node {
     min-height: 0;
     padding: 14px 15px 14px 18px;
-    background: rgba(9, 19, 15, 0.72);
+    border-bottom: 1px solid var(--rule-dark);
+    background: transparent;
   }
 
   .feynman-node::before {

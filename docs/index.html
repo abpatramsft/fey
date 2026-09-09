@@ -22,7 +22,12 @@
       <div class="site-shell hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Explainability for agent-built code</p>
-          <h1>Documentation that can <span>point to the line.</span></h1>
+          <h1>
+            <span class="hero-title-line">Documentation</span>
+            <span class="hero-title-line">that can</span>
+            <span class="hero-title-line hero-title-accent">point to the</span>
+            <span class="hero-title-line hero-title-accent">line.</span>
+          </h1>
           <p class="hero-lede">Fey turns a repository into an anchored wiki, clickable flow maps, narrated working-tree drift, and a gated improvement loop. The model explains; deterministic tools verify.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="getting-started.html">
@@ -38,11 +43,6 @@
         </div>
 
         <div class="feynman-stage" data-feynman-stage data-active="wiki" aria-label="Animated map of Fey capabilities">
-          <div class="feynman-stage-head">
-            <span>repository interaction map</span>
-            <span>four evidence surfaces</span>
-          </div>
-
           <div class="feynman-field">
             <svg class="feynman-map" viewBox="0 0 720 520" role="img" aria-labelledby="feynman-title feynman-desc">
               <title id="feynman-title">How Fey turns repository evidence into four product views</title>
@@ -87,9 +87,6 @@
               <g class="feynman-core" aria-hidden="true">
                 <circle class="core-orbit orbit-a" cx="306" cy="260" r="46"/>
                 <circle class="core-orbit orbit-b" cx="306" cy="260" r="31"/>
-                <path d="M306 226v34m0 0v34" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round"/>
-                <path d="M306 260q7-9 14 0t14 0t14 0" fill="none" stroke="#67C1E0" stroke-width="6" stroke-linecap="round"/>
-                <circle cx="306" cy="260" r="8" fill="#F4B84E"/>
               </g>
 
               <g class="feynman-pulses" aria-hidden="true">
@@ -117,9 +114,11 @@
               <small>files · symbols · diffs · tests</small>
             </div>
 
-            <div class="feynman-core-label">
-              <span>fey</span>
-              <small>index · validate · explain</small>
+            <div class="feynman-core-unit" aria-label="Fey indexes, validates, and explains repository evidence">
+              <div class="feynman-core-label">
+                <img src="assets/fey-mark.svg" alt="">
+              </div>
+              <span class="feynman-core-caption">index · validate · explain</span>
             </div>
 
             <a class="feynman-node node-wiki is-active" data-fey-node="wiki" href="anchors.html">
