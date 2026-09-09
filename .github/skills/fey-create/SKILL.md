@@ -16,6 +16,10 @@ fey produces a wiki where **every doc claim is anchored to real code**. Links ar
 source of truth: when prose and code disagree, the link wins. The bundle lives in the
 repo under `.fey/create/` and is served locally.
 
+Command examples use `fey` as shorthand. In the checked-in repository layout, invoke it
+as `node .github/skills/fey-create/bin/fey.js`; for a personal or plugin installation,
+resolve `bin/fey.js` from this skill's own directory.
+
 ## The flow (keep it simple)
 
 1. **Index** — produce the `spans` catalog in `.fey/create/manifest.json`. Two ways:
@@ -163,14 +167,15 @@ does this do?", "is it safe?", "why was it made?". Diff asks send `flowId` inste
 changed files for the surrounding picture. Answers render with full Markdown (headings,
 lists, tables, fenced code).
 
-The invocation is `copilot -C <repo> -s --no-ask-user --allow-all --deny-tool=write
---deny-tool=shell` with the prompt fed on **stdin** (not `-p`, which would hit the OS
-command-line length limit → `spawn ENAMETOOLONG` on large pages). It is non-interactive,
-clean output (`-s`), no prompts (`--no-ask-user` + `--allow-all` covers path/tool trust),
-and **read-only** (deny `write`/`shell`, so a question can never mutate the repo). This runs
-entirely against the user's local `copilot` binary and login — no cloud round-trip from fey
-itself. Set `FEY_COPILOT_BIN` to point at a specific binary and `FEY_ASK_MODEL` to pin a
-model; if `copilot` isn't on `PATH`, the drawer shows a friendly error.
+The invocation is `copilot -C <repo> -s --no-ask-user --available-tools view rg glob
+--allow-all-tools --deny-tool=write --deny-tool=shell` with the prompt fed on **stdin**
+(not `-p`, which would hit the OS command-line length limit → `spawn ENAMETOOLONG` on
+large pages). It is non-interactive, clean output (`-s`), and **read-only by tool
+availability**: the model can only view and search local files, while shell, write, web,
+and MCP integrations are absent from its tool surface. This runs against the user's local
+`copilot` binary and login. Set `FEY_COPILOT_BIN` to point at a specific binary and
+`FEY_ASK_MODEL` to pin a model; if `copilot` isn't on `PATH`, the drawer shows a friendly
+error.
 
 ## Diagrams = anchored flow maps
 

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Install Fey in a repository and generate the first anchored codebase wiki with GitHub Copilot CLI.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Getting started · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="getting-started">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Start</p>
+          <h1>Put Fey inside a repository.</h1>
+          <p>Install the skills where Copilot can discover them, ask for an explainable wiki or improvement run, then open the local viewer against the generated <code>.fey/</code> bundle.</p>
+        </header>
+
+        <p class="doc-lead">Fey is currently a repository-first skill and hook collection. There is no hosted service and no published plugin yet. The source repository is the distribution artifact.</p>
+
+        <h2 id="requirements">Requirements</h2>
+        <div class="definition-list">
+          <dl class="definition-row">
+            <dt>GitHub Copilot CLI</dt>
+            <dd>Copilot loads the skill instructions, inspects the target repository, authors the explainability artifacts, and coordinates improvement proposals.</dd>
+          </dl>
+          <dl class="definition-row">
+            <dt>Node.js 18+</dt>
+            <dd>The deterministic indexer runner, validators, local viewer, gates, and improve CLI are plain Node.js programs. No install is required; the optional TypeScript compiler API improves JS/TS extraction.</dd>
+          </dl>
+          <dl class="definition-row">
+            <dt>Git</dt>
+            <dd>Create can document a non-git folder, but Drift and the complete Improve workflow require a git repository.</dd>
+          </dl>
+          <dl class="definition-row">
+            <dt>PowerShell 7</dt>
+            <dd>Required on Windows only when the Copilot hook bundle is enabled. The hook dispatcher itself is cross-platform Node.js.</dd>
+          </dl>
+        </div>
+
+        <div class="doc-callout sky">
+          <strong>Current distribution</strong>
+          <p>The planned Copilot plugin and npm package are documented in <a href="https://github.com/abpatramsft/fey/blob/main/improvement.md">improvement.md</a>. Until that work lands, installation means copying the skill folders.</p>
+        </div>
+
+        <h2 id="install">Install in a project</h2>
+        <p>Project installation keeps the exact Fey version beside the codebase. It is the clearest option for a team because the skills and gates travel with the repository.</p>
+
+        <div data-tab-group>
+          <div class="tab-list" role="tablist" aria-label="Operating system">
+            <button class="tab-button is-active" type="button" role="tab" aria-selected="true" data-tab="bash">macOS / Linux</button>
+            <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="powershell">Windows</button>
+          </div>
+
+          <div class="tab-panel is-active" data-tab-panel="bash">
+            <div class="code-block" data-copy>
+              <div class="code-block-head"><span>bash · run from the target repository</span><button class="copy-button" type="button">Copy</button></div>
+              <pre><code>git clone https://github.com/abpatramsft/fey.git /tmp/fey
+mkdir -p .github/skills .github/hooks
+cp -R /tmp/fey/.github/skills/fey-create .github/skills/
+cp -R /tmp/fey/.github/skills/fey-improve .github/skills/
+cp /tmp/fey/.github/hooks/fey-hook.* .github/hooks/</code></pre>
+            </div>
+          </div>
+
+          <div class="tab-panel" data-tab-panel="powershell">
+            <div class="code-block" data-copy>
+              <div class="code-block-head"><span>PowerShell · run from the target repository</span><button class="copy-button" type="button">Copy</button></div>
+              <pre><code>git clone https://github.com/abpatramsft/fey.git "$env:TEMP\fey"
+New-Item -ItemType Directory -Force .github\skills, .github\hooks | Out-Null
+Copy-Item -Recurse -Force "$env:TEMP\fey\.github\skills\fey-create" .github\skills\
+Copy-Item -Recurse -Force "$env:TEMP\fey\.github\skills\fey-improve" .github\skills\
+Copy-Item -Force "$env:TEMP\fey\.github\hooks\fey-hook.*" .github\hooks\</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <p>Copy only <code>fey-create</code> if the repository needs documentation but not the hill-climbing workflow. The hook bundle is optional; without it, the commands still work, but Copilot is not automatically held at lifecycle boundaries.</p>
+
+        <h3 id="personal-install">Install the skills once for your user</h3>
+        <p>For personal use across repositories, place each skill directory under <code>~/.copilot/skills/</code> or add the source directory through Copilot CLI’s skills management. Repository hooks remain the more predictable choice when a team needs the same gates.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>personal skill layout</span></div>
+          <pre><code>~/.copilot/skills/
+├── fey-create/
+│   ├── SKILL.md
+│   ├── bin/
+│   └── src/
+└── fey-improve/
+    ├── SKILL.md
+    ├── bin/
+    └── src/</code></pre>
+        </div>
+
+        <h2 id="first-wiki">Generate the first wiki</h2>
+        <p>Open Copilot CLI in the target repository and describe the outcome. Fey is a skill, so the useful entry point is the request—not a long command with product-specific flags.</p>
+
+        <div class="code-block" data-copy data-copy-text="Use fey to generate an explainable wiki for this repository.">
+          <div class="code-block-head"><span>Copilot prompt</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>Use fey to generate an explainable wiki for this repository.</code></pre>
+        </div>
+
+        <p>Copilot should inspect the repository, write a tailored indexer, validate the span catalog, author anchored pages, attribute any visible working-tree drift, and start the local viewer.</p>
+
+        <div class="doc-steps">
+          <section class="doc-step">
+            <span class="doc-step-number">01</span>
+            <div><h3>Inspect</h3><p>Find the languages, modules, entry points, and the smallest useful information architecture.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">02</span>
+            <div><h3>Index</h3><p>Write or select an indexer and emit validated source spans into <code>.fey/create/manifest.json</code>.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">03</span>
+            <div><h3>Author</h3><p>Write pages and optional flow diagrams using only span IDs accepted by the index.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">04</span>
+            <div><h3>Serve</h3><p>Open Overview, Wiki, Diagrams, Drift, and Optimize from the repository-local bundle.</p></div>
+          </section>
+        </div>
+
+        <h2 id="serve">Open the viewer later</h2>
+        <p>The generated explanation lives in the target repository. Start the viewer again without rerunning the generative authoring step:</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>terminal</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js serve .</code></pre>
+        </div>
+
+        <p>The default address is <code>http://localhost:4177</code>. Add <code>--port N</code> when that port is already in use.</p>
+
+        <h2 id="output">What Fey writes</h2>
+        <div class="code-block">
+          <div class="code-block-head"><span>target repository</span></div>
+          <pre><code>.fey/
+├── create/
+│   ├── indexer.mjs
+│   ├── manifest.json
+│   ├── pages/
+│   ├── diagrams/
+│   ├── drift-notes.json
+│   └── gate.json
+└── improve/
+    ├── run.json
+    ├── directions.json
+    ├── rubric.json
+    ├── gate.json
+    ├── history.json
+    └── scratch/</code></pre>
+        </div>
+
+        <p>These are normal Markdown and JSON files. Commit them when the explanation or improvement record should travel with the code, or ignore them when the repository treats Fey as disposable local analysis.</p>
+
+        <h2 id="troubleshooting">Common first-run problems</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Symptom</th><th>What it means</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>Skill does not trigger</td><td>Copilot has not reloaded the copied skill.</td><td>Restart the CLI or run <code>/skills reload</code>, then inspect it with <code>/skills info fey-create</code>.</td></tr>
+              <tr><td>Indexer validation fails</td><td>A generated span points outside an existing file or line range.</td><td>Fix <code>.fey/create/indexer.mjs</code> and rerun <code>node .github/skills/fey-create/bin/fey.js index .</code> The prior manifest remains untouched.</td></tr>
+              <tr><td>Stop hook keeps the turn open</td><td>Coverage, drift attribution, dashboard readiness, or an improve-run invariant still fails.</td><td>Read the hook’s concrete report and resolve each item instead of disabling the gate.</td></tr>
+              <tr><td>Dashboard is not reachable</td><td>The process stopped or the recorded port is stale.</td><td>Start <code>node .github/skills/fey-create/bin/fey.js serve .</code> again against the repository or improve worktree.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

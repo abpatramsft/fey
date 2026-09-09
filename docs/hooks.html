@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Understand Fey's Copilot lifecycle hooks for readiness, improve-run safety, proposal isolation, recovery, and handoff.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Hooks and gates · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="hooks">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Improve · Operations</p>
+          <h1>Hold the agent at the boundaries that matter.</h1>
+          <p>Fey’s hook bundle adds context before work, prevents common gate bypasses, validates proposal and stop states, and remains inert in repositories without Fey state.</p>
+        </header>
+
+        <p class="doc-lead">Hooks are thin lifecycle adapters. The durable rules live in the deterministic CLIs, so the same check can run manually, in a hook, or later in CI.</p>
+
+        <h2 id="install">Install the hook bundle</h2>
+        <p>Copy every <code>fey-hook.*</code> file into the repository’s <code>.github/hooks/</code> directory. The JSON file registers lifecycle events; the Node dispatcher locates the installed Fey skills and returns the correct Copilot hook response.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>repository hook layout</span></div>
+          <pre><code>.github/hooks/
+├── fey-hook.json
+├── fey-hook.js
+├── fey-hook.sh
+└── fey-hook.ps1</code></pre>
+        </div>
+
+        <p>The shell and PowerShell files remain compatibility wrappers for the stop hook. The registered events call the shared Node dispatcher, avoiding duplicated policy logic and removing a separate <code>jq</code> dependency.</p>
+
+        <h2 id="no-op">Safe by default outside Fey</h2>
+        <p>If a repository has no <code>.fey/</code> state, the hook returns no decision and does not trap unrelated work. If an active improve run exists but the improve skill is missing, mutation and stop decisions fail closed so a half-installed gate cannot silently approve work.</p>
+
+        <h2 id="events">Lifecycle events</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Event</th><th>Fey behavior</th><th>Can block?</th></tr></thead>
+            <tbody>
+              <tr><td><code>sessionStart</code></td><td>Injects active worktree, status, minimum delta, change limits, and the instruction to use gated commits.</td><td>No</td></tr>
+              <tr><td><code>preToolUse</code></td><td>Blocks direct git mutations, writes outside the worktree or configured scope, production edits during proposal phase, and direct edits to frozen run state.</td><td>Yes</td></tr>
+              <tr><td><code>postToolUse</code></td><td>Runs quick structural, scope, size, dependency, binary, and secret checks after a production edit.</td><td>Not retroactively</td></tr>
+              <tr><td><code>postToolUseFailure</code></td><td>Adds recovery guidance: repair and recheck the candidate or revert it.</td><td>No</td></tr>
+              <tr><td><code>subagentStart</code></td><td>Restates the proposal-only contract and the scratch directory for the current iteration.</td><td>No</td></tr>
+              <tr><td><code>subagentStop</code></td><td>Validates proposal JSON before a proposal subagent completes.</td><td>Yes</td></tr>
+              <tr><td><code>agentStop</code></td><td>Combines create readiness with improve stop-state checks.</td><td>Yes</td></tr>
+              <tr><td><code>errorOccurred</code></td><td>Records minimal non-sensitive error metadata in the shared git directory for recovery diagnostics.</td><td>No</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="create-stop">Create readiness at agent stop</h2>
+        <p>When <code>.fey/</code> exists, the create CLI checks three outcomes:</p>
+        <div class="gate-list">
+          <div class="gate-row"><strong>Coverage</strong><p>The anchored-line total and every included file clear <code>.fey/create/gate.json</code>.</p><span class="gate-state">Required</span></div>
+          <div class="gate-row"><strong>Attributed drift</strong><p>Every visible working-tree hunk has accepted intent and authorship in <code>drift-notes.json</code>.</p><span class="gate-state">Required</span></div>
+          <div class="gate-row"><strong>Live dashboard</strong><p>The port recorded in <code>.fey/serve.json</code> answers Fey’s local health endpoint.</p><span class="gate-state">Required</span></div>
+        </div>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>manual create stop check</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js stop-check .</code></pre>
+        </div>
+
+        <h2 id="improve-stop">Improve stop state</h2>
+        <p>An active improve run may stop only when production code is clean, no candidate remains pending, a baseline exists, and the status is deliberately <code>paused</code> or <code>done</code>.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>manual improve stop check</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js stop-check &lt;worktree&gt;</code></pre>
+        </div>
+
+        <h2 id="git-boundary">Why direct git mutations are blocked</h2>
+        <p><code>commit-if-better</code> binds the current working tree to recorded evidence, checks the score and protected criteria, stages only evaluated paths, and records the decision. A direct <code>git commit</code>, <code>git reset</code>, <code>git mv</code>, or <code>git apply</code> can bypass or confuse that contract.</p>
+
+        <p>The pre-tool hook denies common mutating subcommands inside an active improve worktree. This is a guardrail, not an operating-system sandbox. The acceptance gate still recomputes and verifies state before a commit.</p>
+
+        <div class="doc-callout">
+          <strong>Timeout behavior</strong>
+          <p>Copilot pre-tool hook timeouts are fail-open. Fey keeps the hook quick and gives it a larger timeout, but the deterministic candidate and acceptance gates remain the final boundary.</p>
+        </div>
+
+        <h2 id="proposal-boundary">Proposal isolation</h2>
+        <p>While a run is <code>proposing</code>, edit tools may write only below <code>.fey/improve/scratch/</code>. Returning to <code>running</code> independently verifies the proposal set and confirms that production code stayed unchanged.</p>
+
+        <p>This second check matters because some built-in subagents do not emit lifecycle events. Fey does not make proposal correctness depend on a hook that may not fire.</p>
+
+        <h2 id="source-checkout">Source checkout versus worktree</h2>
+        <p>The shared git directory holds a pointer to the active improve worktree. A session opened in the source checkout receives context about that run, but Fey does not block normal source-checkout edits. The user may keep working in parallel, accepting that later finalization can conflict.</p>
+
+        <p>After <code>finalize</code>, the source checkout contains the landed <code>.fey/improve/</code> record. The hook reads its recorded worktree path and does not mistake the source checkout for the optimization environment.</p>
+
+        <h2 id="cloud">Local CLI and cloud agent</h2>
+        <p>Repository-level <code>.github/hooks/*.json</code> is the safest shared path because Copilot cloud agent loads hooks from the cloned repository and honors Bash entries. Local Copilot CLI selects PowerShell on Windows and Bash elsewhere.</p>
+
+        <p>User-installed plugin hooks are part of the future packaging plan, but cloud support should continue to keep an explicit repository-level option rather than assuming a local plugin cache exists in an ephemeral environment.</p>
+
+        <h2 id="debug">Debug a hook</h2>
+        <p>Run the deterministic command first. If it behaves correctly, pipe a representative payload into the dispatcher and verify the final JSON decision.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>PowerShell example</span></div>
+          <pre><code>'{"cwd":"C:\\repo","stopReason":"end_turn","stop_hook_active":false}' |
+  node .github\hooks\fey-hook.js agentStop</code></pre>
+        </div>
+
+        <p>Progress lines are JSON objects with <code>"type": "progress"</code>. The final non-progress object contains the allow, deny, or block result consumed by Copilot.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

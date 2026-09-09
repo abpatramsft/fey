@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How Fey turns git drift into reviewable flows of intent with hunk attribution, authorship, claim impact, and read-only questions.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Drift and review · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="drift">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Review</p>
+          <h1>Read why the tree changed before reading every changed line.</h1>
+          <p>Drift groups the live working tree into logical flows with intent and authorship, while preserving the raw diff as the evidence underneath.</p>
+        </header>
+
+        <p class="doc-lead">A diff is precise about text and often weak at explaining purpose. Fey does not replace the diff; it adds the missing review layer and keeps the source one click away.</p>
+
+        <h2 id="sources">What counts as drift</h2>
+        <p>Fey uses git as the source of truth:</p>
+        <ul>
+          <li><strong>Tracked changes</strong> are read from <code>git diff HEAD</code>.</li>
+          <li><strong>Net-new files</strong> come from <code>git ls-files --others --exclude-standard</code>.</li>
+          <li><strong>Ignored files</strong> stay out of the view.</li>
+          <li><strong>Fey and GitHub configuration</strong> under <code>.fey/</code> and <code>.github/</code> stay out of product-code drift.</li>
+        </ul>
+
+        <p>This is intentionally narrower than a content-hash freshness system. Drift means “what is currently ready to review in this working tree.”</p>
+
+        <h2 id="hunks">Stable hunk signatures</h2>
+        <p>Fey flattens the current diff into hunks and gives each one a stable signature. Drift notes refer to those signatures rather than to a fragile ordinal position.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>inspect current hunks</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js diff-hunks . --json</code></pre>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>drift-notes.json · representative shape</span></div>
+          <pre><code>{
+  "flows": [
+    {
+      "id": "cache-invalidation",
+      "title": "Invalidate cache after writes",
+      "summary": "Readers no longer receive stale state.",
+      "author": "ai",
+      "intent": "Make write-through behavior explicit.",
+      "hunks": {
+        "src/cache.ts:88:3:4": {
+          "rationale": "Remove the cached value after persistence."
+        }
+      }
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <h2 id="flow-shape">A flow is the unit of explanation</h2>
+        <p>Related hunks can belong to one change story even when they span files. A useful flow answers four questions:</p>
+        <div class="definition-list">
+          <dl class="definition-row"><dt>What changed?</dt><dd>A short title names the behavior a reviewer controls or recognizes.</dd></dl>
+          <dl class="definition-row"><dt>Why?</dt><dd>The summary and per-hunk rationale explain the operational reason for the edit.</dd></dl>
+          <dl class="definition-row"><dt>Who led it?</dt><dd>The flow is marked AI-led, human-led, or mixed using local session evidence and known edits.</dd></dl>
+          <dl class="definition-row"><dt>What proves it?</dt><dd>The raw diff stays collapsible under the explanation, linked to the actual file.</dd></dl>
+        </div>
+
+        <h2 id="claim-impact">Claims affected by a change</h2>
+        <p>When a changed line overlaps a wiki anchor, Fey raises that claim inside the flow. This gives the reviewer a specific documentation question: does the claim still describe the new code?</p>
+
+        <p>Review is git-independent. A maintainer can confirm a claim without committing the code, and the Drift badge counts only claims that still need attention.</p>
+
+        <div class="doc-callout sky">
+          <strong>Line overlap is a prompt to review</strong>
+          <p>A change outside an anchored range can still alter a claim semantically. Fey makes obvious overlap visible; it does not pretend to solve every dependency relationship.</p>
+        </div>
+
+        <h2 id="authorship">Authorship is stated, not guessed silently</h2>
+        <p>The visual spine and label distinguish AI-led, human, and mixed flows. When session history is available, the flow can include the stated intent that led to the change. If attribution is missing, the interface says so.</p>
+
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>State</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>AI-led</td><td>The change is primarily connected to an agent-authored task or session intent.</td></tr>
+              <tr><td>Human</td><td>The change is attributed to direct human work or an explicit operator decision.</td></tr>
+              <tr><td>Mixed</td><td>The logical flow contains meaningful contributions from both.</td></tr>
+              <tr><td>Unattributed</td><td>No accepted note explains the current hunk. The optional drift gate fails until it is resolved.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="ask">Ask about a change</h2>
+        <p>Each drift flow exposes an Ask action. Fey sends the flow title, summary, intent, authorship, hunk rationale, and actual diff to a read-only local Copilot CLI process. Copilot can open the changed files for surrounding context.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>read-only Copilot boundary</span></div>
+          <pre><code>copilot -C &lt;repo&gt; -s --no-ask-user \
+  --available-tools view rg glob \
+  --allow-all-tools \
+  --deny-tool=write --deny-tool=shell</code></pre>
+        </div>
+
+        <p>The available-tool list removes shell, write, web, and MCP integrations from the model’s tool surface. The prompt is passed on standard input rather than the command line, which avoids operating-system argument-length limits on large pages or diffs.</p>
+
+        <h2 id="gate">The drift attribution gate</h2>
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>check attribution</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js drift-gate .</code></pre>
+        </div>
+
+        <p>When the hook bundle is installed, <code>agentStop</code> includes this check. It blocks handoff while any visible hunk lacks a note. Re-running the exact same turn does not help; the agent must explain or remove the drift.</p>
+
+        <h2 id="empty-state">When there are no notes</h2>
+        <p>The Drift view still renders the working tree. It falls back to a simple flow shape rather than showing nothing, but missing rationale remains explicit. This keeps failure useful without turning absence into success.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

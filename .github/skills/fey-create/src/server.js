@@ -78,7 +78,7 @@ function computeDrift(repoRoot, manifest) {
   const blocks = [];
   for (const page of manifest.pages) {
     for (const block of page.blocks) {
-      const spans = block.anchors.map((id) => makeSpan(manifest, id)).filter(Boolean);
+      const spans = block.anchors.map((id) => makeSpan(repoRoot, manifest, id)).filter(Boolean);
       blocks.push({
         pageId: page.id, pageTitle: page.title, blockId: block.id,
         symbol: (spans[0] || {}).symbol || "", locked: !!block.locked, spans,
@@ -220,7 +220,7 @@ function askContext(repoRoot, manifest, pageId, blockId) {
   const refs = [];
   const seen = new Set();
   for (const sid of [...new Set(blocks.flatMap((b) => b.anchors))]) {
-    const s = makeSpan(manifest, sid);
+    const s = makeSpan(repoRoot, manifest, sid);
     if (!s) continue;
     const key = `${s.file}:${s.startLine}-${s.endLine}`;
     if (seen.has(key)) continue;
@@ -298,7 +298,7 @@ function askDiagramContext(repoRoot, manifest, diagramId) {
   const seen = new Set();
   for (const n of diagram.nodes || []) {
     if (!n.anchor) continue;
-    const s = makeSpan(manifest, n.anchor);
+    const s = makeSpan(repoRoot, manifest, n.anchor);
     if (!s) continue;
     const key = `${s.file}:${s.startLine}-${s.endLine}`;
     if (seen.has(key)) continue;
@@ -326,6 +326,20 @@ function askDiagramPrompt(repoName, ctx, selection, query) {
   }
   L.push(`\n## Reader's question\n${query.trim()}`);
   return L.join("\n");
+}
+
+function copilotAskArgs(repoRoot) {
+  const args = [
+    "-C", repoRoot,
+    "-s",
+    "--no-ask-user",
+    "--available-tools", "view", "rg", "glob",
+    "--allow-all-tools",
+    "--deny-tool=write",
+    "--deny-tool=shell",
+  ];
+  if (process.env.FEY_ASK_MODEL) args.push("--model", process.env.FEY_ASK_MODEL);
+  return args;
 }
 
 // --- Optimize tab: read the fey-improve run log from `.fey/improve/` ---
@@ -393,7 +407,7 @@ function resolveDiagram(repoRoot, manifest, id) {
   const diagram = DG.loadDiagram(repoRoot, id);
   if (!diagram) return null;
   const resolveNode = (n) => {
-    const s = n.anchor ? makeSpan(manifest, n.anchor) : null;
+    const s = n.anchor ? makeSpan(repoRoot, manifest, n.anchor) : null;
     return {
       id: n.id, name: n.name, lane: n.lane, parent: n.parent == null ? null : n.parent,
       order: n.order, resolved: n.resolved !== false, note: n.note || "",
@@ -407,7 +421,7 @@ function resolveDiagram(repoRoot, manifest, id) {
     lanes: diagram.lanes || [],
     nodes: (diagram.nodes || []).map(resolveNode).sort((a, b) => a.order - b.order),
     branches: (diagram.branches || []).map((br) => ({ label: br.label, nodes: (br.nodes || []).map(resolveNode).sort((a, b) => a.order - b.order) })),
-    sources: [...new Set((diagram.nodes || []).map((n) => n.anchor && makeSpan(manifest, n.anchor)).filter(Boolean).map((s) => s.file))],
+    sources: [...new Set((diagram.nodes || []).map((n) => n.anchor && makeSpan(repoRoot, manifest, n.anchor)).filter(Boolean).map((s) => s.file))],
   };
 }
 
@@ -461,7 +475,7 @@ function serve(repoRoot, port) {
             title: p.title,
             section: p.section || "Wiki",
             blurb: p.blurb || "",
-            sources: [...new Set(p.blocks.flatMap((b) => b.anchors.map((s) => (makeSpan(manifest, s) || {}).file).filter(Boolean)))].length,
+            sources: [...new Set(p.blocks.flatMap((b) => b.anchors.map((s) => (makeSpan(repoRoot, manifest, s) || {}).file).filter(Boolean)))].length,
             drifted: driftPages.has(p.id),
           }));
           return json(res, 200, {
@@ -509,7 +523,7 @@ function serve(repoRoot, port) {
           const driftedBlocks = new Set(drift.items.flatMap((i) => i.affected.map((a) => a.blockId)));
           const prose = M.loadPage(repoRoot, page.md);
           const resolve = (spanId) => {
-            const s = makeSpan(manifest, spanId);
+            const s = makeSpan(repoRoot, manifest, spanId);
             return s ? { id: spanId, file: s.file, symbol: s.symbol, kind: s.kind, startLine: s.startLine, endLine: s.endLine } : null;
           };
           const blocks = page.blocks.map((b) => ({
@@ -606,8 +620,7 @@ function serve(repoRoot, port) {
           // asks (file references) but can be larger for diff asks; stdin keeps us safe
           // from the OS command-line limit (Windows ~32KB → spawn ENAMETOOLONG) either way.
           // copilot reads stdin as the prompt when -p is omitted.
-          const args = ["-C", repoRoot, "-s", "--no-ask-user", "--allow-all", "--deny-tool=write", "--deny-tool=shell"];
-          if (process.env.FEY_ASK_MODEL) args.push("--model", process.env.FEY_ASK_MODEL);
+          const args = copilotAskArgs(repoRoot);
           let child;
           try { child = spawn(cop.cmd, args, { cwd: repoRoot, shell: cop.shell }); }
           catch (e) { res.end("__OLO_ERR__Could not launch copilot: " + (e && e.message ? e.message : e)); return; }
@@ -666,4 +679,4 @@ function writeServeRunfile(repoRoot, port) {
   } catch {}
 }
 
-module.exports = { serve };
+module.exports = { serve, copilotAskArgs };

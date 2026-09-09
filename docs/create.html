@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How Fey indexes a repository, authors an anchored wiki, reduces parallel work, and serves the local explainability viewer.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Create a wiki · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="create">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Create</p>
+          <h1>Turn source into an explanation with a checkable spine.</h1>
+          <p>Fey lets Copilot choose how to explain a repository while deterministic commands own span extraction, validation, reduction, coverage, and readiness.</p>
+        </header>
+
+        <p class="doc-lead">The create flow is deliberately asymmetric: the indexer and validators are strict; the page structure and prose remain free to fit the repository in front of them.</p>
+
+        <div class="flow-figure" aria-label="Fey create flow">
+          <div class="flow-row">
+            <div class="flow-box"><span>Repository</span><strong>Files, symbols, entry points</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Catalog</span><strong>Validated source spans</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Bundle</span><strong>Pages, diagrams, drift notes</strong></div>
+          </div>
+        </div>
+
+        <h2 id="flow">The create flow</h2>
+        <div class="doc-steps">
+          <section class="doc-step">
+            <span class="doc-step-number">01</span>
+            <div><h3>Inspect the repository</h3><p>Understand its languages, architecture, public entry points, and what a reader needs first. This determines the indexer and page plan.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">02</span>
+            <div><h3>Build the span catalog</h3><p>Prefer a generated <code>.fey/create/indexer.mjs</code> tailored to the repository. Use the built-in multi-language extractor as a fallback.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">03</span>
+            <div><h3>Author pages against accepted IDs</h3><p>Each prose block names one or more span IDs from the catalog. No page may invent a symbol or line range and hope it exists.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">04</span>
+            <div><h3>Attribute working-tree drift</h3><p>If the repository has uncommitted changes, describe the intent and authorship of every visible diff hunk before handoff.</p></div>
+          </section>
+          <section class="doc-step">
+            <span class="doc-step-number">05</span>
+            <div><h3>Serve and hold the boundary</h3><p>Start the viewer. When hooks are enabled, coverage, attributed drift, and dashboard liveness must pass before the agent can stop.</p></div>
+          </section>
+        </div>
+
+        <h2 id="indexer">The generated indexer</h2>
+        <p>A generic parser is convenient, but real repositories mix languages, generated code, frameworks, and naming conventions. Fey’s preferred path is a small per-repository Node script written after inspection.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey/create/indexer.mjs · output contract</span></div>
+          <pre><code>{
+  "spans": [
+    {
+      "file": "src/orders/service.py",
+      "symbol": "OrderService.place_order",
+      "kind": "method",
+      "startLine": 24,
+      "endLine": 68
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <p>The script receives the repository root as its first argument and prints only JSON to standard output. Logs go to standard error. Fey derives the final span ID and content hash, then verifies that the file and line range exist and that IDs are unique.</p>
+
+        <div class="doc-callout green">
+          <strong>Write nothing by hand</strong>
+          <p>The indexer authors spans. Copilot should never type span records directly into the manifest, because that would make refreshes non-repeatable.</p>
+        </div>
+
+        <h3 id="builtin-indexer">Built-in fallback</h3>
+        <p>When no repository-specific indexer exists, <code>fey index</code> falls back to built-in extraction for TypeScript and JavaScript, Python, and common brace-based languages such as Go, Rust, Java, C#, C/C++, Kotlin, Swift, Scala, and PHP. JavaScript and TypeScript use the compiler API when the optional <code>typescript</code> package is present and otherwise use the dependency-free brace scanner.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>force the built-in extractor</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js index . --builtin</code></pre>
+        </div>
+
+        <p>Install the optional compiler dependency when exact JavaScript/TypeScript AST extraction matters:</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>optional TypeScript compiler API</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>npm install --prefix .github/skills/fey-create</code></pre>
+        </div>
+
+        <h2 id="authoring">Authoring modes</h2>
+        <h3 id="one-pass">One pass for a small repository</h3>
+        <p>For a compact codebase, one agent can inspect the full span catalog, choose the page structure, author the pages, and build the overview. The important constraint is not the number of agents; it is that every claim resolves to accepted evidence.</p>
+
+        <h3 id="map-reduce">Map and reduce for a large repository</h3>
+        <p>For a multi-module repository, partition the files into non-overlapping units. Parallel agents write their page, block metadata, and unit record into isolated scratch directories. They return a receipt rather than sending all prose back through the parent context.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>parallel authoring scratch contract</span></div>
+          <pre><code>.fey/create/scratch/&lt;unit-id&gt;/
+├── unit.json
+├── page.md
+└── blocks.json</code></pre>
+        </div>
+
+        <p><code>fey merge</code> validates every unit, ensures page and block IDs are unique, checks marker parity, preserves locked blocks, and writes the final pages only when the entire reduction is valid.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>deterministic reduce</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js merge .</code></pre>
+        </div>
+
+        <h2 id="overview">What the viewer builds around the pages</h2>
+        <div class="definition-list">
+          <dl class="definition-row"><dt>Overview</dt><dd>A repository description, named architecture layers, suggested reading path, and source coverage.</dd></dl>
+          <dl class="definition-row"><dt>Wiki</dt><dd>Editable prose blocks beside the exact files and line ranges they explain.</dd></dl>
+          <dl class="definition-row"><dt>Diagrams</dt><dd>Entry-point control paths whose resolved nodes link back to accepted spans.</dd></dl>
+          <dl class="definition-row"><dt>Drift</dt><dd>The current working tree grouped into logical flows with intent, authorship, and raw diff evidence.</dd></dl>
+          <dl class="definition-row"><dt>Optimize</dt><dd>The hill-climb history from <code>.fey/improve/</code>, even when no create bundle exists.</dd></dl>
+        </div>
+
+        <h2 id="coverage">Coverage is a reading signal, not a truth score</h2>
+        <p>Coverage measures the percentage of indexed source lines touched by at least one anchor. It tells a maintainer where the explanation is thin. It does not prove that a sentence is semantically correct.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey/create/gate.json</span></div>
+          <pre><code>{
+  "minTotalCoverage": 90,
+  "minFileCoverage": 80,
+  "exclude": ["**/*.test.ts", "**/__init__.py"]
+}</code></pre>
+        </div>
+
+        <div class="doc-callout">
+          <strong>Use exclusions deliberately</strong>
+          <p>Exclude generated, trivial, or intentionally undocumented files. Do not use exclusions to make a thin explanation look complete.</p>
+        </div>
+
+        <h2 id="commands">Core create commands</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>fey index</code></td><td>Run the generated or built-in indexer and validate the span catalog.</td></tr>
+              <tr><td><code>fey merge</code></td><td>Reduce parallel page scratch work into the manifest and page files.</td></tr>
+              <tr><td><code>fey diagrams build</code></td><td>Validate and assemble diagram scratch files.</td></tr>
+              <tr><td><code>fey coverage</code></td><td>Show whole-repository and per-file anchored-line coverage.</td></tr>
+              <tr><td><code>fey gate</code></td><td>Compare coverage with repository thresholds.</td></tr>
+              <tr><td><code>fey serve</code></td><td>Start the local explainability viewer.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

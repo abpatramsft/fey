@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How Fey builds anchored static control-flow maps from entry points, lanes, nodes, branches, and honest unresolved calls.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Flow diagrams · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="diagrams">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Create · Diagrams</p>
+          <h1>Trace the path without pretending it ran.</h1>
+          <p>Fey diagrams are plausible static control paths from a real entry point. Resolved nodes link to source; dynamic or external calls stay visibly unresolved.</p>
+        </header>
+
+        <p class="doc-lead">The diagram borrows the grammar of a Feynman map: modules become lanes, calls become exchanges, and every accepted node remains attached to the code it represents.</p>
+
+        <h2 id="not-a-trace">A static map, not a runtime trace</h2>
+        <p>Fey reads the source and follows a likely call path. It does not claim that the path executed, measure timing, or infer dynamic dispatch with certainty. This distinction keeps the diagram useful without overstating what static analysis can prove.</p>
+
+        <div class="doc-callout sky">
+          <strong>Diagram invariant</strong>
+          <p>A resolved node must carry an accepted source anchor. A genuinely unresolved call carries <code>resolved: false</code> and no anchor.</p>
+        </div>
+
+        <h2 id="entry-points">Begin where control enters</h2>
+        <p>Copilot discovers repository-specific entry points instead of applying one hardcoded list. Common examples include:</p>
+        <ul>
+          <li>HTTP routes and request handlers</li>
+          <li>CLI commands and <code>main</code> functions</li>
+          <li>Event, queue, webhook, and scheduled-job handlers</li>
+          <li>Public exported functions that act as a library boundary</li>
+          <li>Tests that best explain an important workflow</li>
+        </ul>
+
+        <p>Choose the flows that help a maintainer understand the system. A small repository may need every entry point; a large one usually benefits from the most representative paths first.</p>
+
+        <h2 id="grammar">Diagram grammar</h2>
+        <div class="definition-list">
+          <dl class="definition-row"><dt>Lane</dt><dd>A module, layer, service, or external boundary that gives calls a stable horizontal position.</dd></dl>
+          <dl class="definition-row"><dt>Root node</dt><dd>The single entry point where the flow begins.</dd></dl>
+          <dl class="definition-row"><dt>Child node</dt><dd>A call or meaningful step reached from its parent. Resolved nodes link to code.</dd></dl>
+          <dl class="definition-row"><dt>Branch</dt><dd>An alternate path such as validation failure, early return, retry, or error handling.</dd></dl>
+          <dl class="definition-row"><dt>Unresolved node</dt><dd>A dynamic, framework-owned, or external call that static reading cannot safely map to a local span.</dd></dl>
+        </div>
+
+        <div class="flow-figure">
+          <svg viewBox="0 0 720 300" role="img" aria-labelledby="diagram-title diagram-desc">
+            <title id="diagram-title">Example anchored control flow</title>
+            <desc id="diagram-desc">A request enters a route, crosses to a service, persists through a repository, and returns. An error branch exits from validation.</desc>
+            <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#7D8A83">
+              <text x="90" y="24">route</text><text x="335" y="24">service</text><text x="590" y="24">store</text>
+            </g>
+            <g stroke="#AEBBB1" stroke-width="1">
+              <path d="M110 42v230"/><path d="M360 42v230"/><path d="M610 42v230"/>
+            </g>
+            <g fill="none" stroke="#11637E" stroke-width="2">
+              <path d="M110 78h250"/><path d="M360 146h250"/><path d="M610 216H110"/>
+              <path d="M110 112H42v78"/>
+            </g>
+            <g fill="#F4B84E" stroke="#F8FAF5" stroke-width="4">
+              <circle cx="110" cy="78" r="8"/><circle cx="360" cy="146" r="8"/><circle cx="610" cy="216" r="8"/>
+            </g>
+            <g fill="#F8FAF5" stroke="#CFD8D0">
+              <rect x="152" y="58" width="118" height="34" rx="3"/><rect x="402" y="126" width="112" height="34" rx="3"/>
+              <rect x="278" y="196" width="112" height="34" rx="3"/><rect x="42" y="158" width="122" height="34" rx="3"/>
+            </g>
+            <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#14231B">
+              <text x="170" y="79">validate input</text><text x="425" y="147">save order</text>
+              <text x="302" y="217">return 201</text><text x="58" y="179">return error</text>
+            </g>
+          </svg>
+        </div>
+
+        <h2 id="authoring">Parallel authoring</h2>
+        <p>After indexing, the parent agent identifies entry points and gives each diagram agent the flow, relevant span IDs, and the diagram contract. Each agent writes one scratch file and returns a short receipt.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>diagram scratch layout</span></div>
+          <pre><code>.fey/create/diagrams/scratch/
+├── place-order/
+│   └── diagram.json
+├── import-catalog/
+│   └── diagram.json
+└── reconcile-payment/
+    └── diagram.json</code></pre>
+        </div>
+
+        <p>Disjoint per-flow directories make a failed diagram independently repairable and keep large prose or JSON payloads out of the parent agent’s context.</p>
+
+        <h2 id="build">Deterministic build</h2>
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>validate and assemble diagrams</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js diagrams build .</code></pre>
+        </div>
+
+        <p>The builder checks the whole scratch set before writing any final diagram:</p>
+        <ul>
+          <li>Diagram and node IDs are unique.</li>
+          <li>Exactly one root exists.</li>
+          <li>Parent references form a tree without cycles.</li>
+          <li>Every lane reference exists.</li>
+          <li>Node kinds belong to the contract enum.</li>
+          <li>Every resolved anchor exists in the manifest.</li>
+          <li>The diagram ID matches its scratch directory.</li>
+        </ul>
+
+        <h2 id="branches">Branches explain meaningful alternatives</h2>
+        <p>Use branch sections for paths a reader needs to understand: rejected input, authorization failure, retries, idempotency exits, or compensating work. Do not turn every conditional into a branch. The diagram is a teaching surface, not a syntax tree.</p>
+
+        <h2 id="viewer">Interaction in the viewer</h2>
+        <p>The Diagrams tab renders one collapsible card per entry point. Selecting a resolved node opens the source panel at its anchored span. Each flow also exposes Ask, which sends the flow description and source references to a read-only Copilot invocation for a deeper answer.</p>
+
+        <div class="doc-callout">
+          <strong>Ask receives references, not a copied repository</strong>
+          <p>Fey passes paths, symbols, line ranges, and flow context. The local Copilot CLI opens the files it needs under the user’s existing permissions.</p>
+        </div>
+
+        <h2 id="failure">Failure behavior</h2>
+        <p>One invalid scratch diagram fails the build and leaves the previous diagram output untouched. Fix only the failing directory and rerun. This atomic behavior prevents a partially refreshed set from looking complete.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

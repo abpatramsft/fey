@@ -48,7 +48,7 @@ const KINDS = ["http-route", "cli", "main", "handler", "export", "job", "test", 
 // Validate one node group (the main `nodes` array or a branch's `nodes`) against
 // the lane set and the span catalog. `label` is used only for error messages.
 // Returns a list of error strings (empty = valid).
-function validateNodeGroup(diagram, nodes, laneIds, manifest, label) {
+function validateNodeGroup(repoRoot, diagram, nodes, laneIds, manifest, label) {
   const errs = [];
   if (!Array.isArray(nodes) || !nodes.length) {
     errs.push(`${label}: nodes must be a non-empty array`);
@@ -72,7 +72,7 @@ function validateNodeGroup(diagram, nodes, laneIds, manifest, label) {
     if (resolved) {
       if (!n.anchor || typeof n.anchor !== "string") {
         errs.push(`${label}: node "${nid}" is resolved but has no anchor (set resolved:false or add an anchor)`);
-      } else if (!makeSpan(manifest, n.anchor)) {
+      } else if (!makeSpan(repoRoot, manifest, n.anchor)) {
         errs.push(`${label}: node "${nid}" anchor "${n.anchor}" does not resolve against manifest.spans (or a valid <file>#L<start>-<end>)`);
       }
     } else if (n.anchor) {
@@ -104,7 +104,7 @@ function validateNodeGroup(diagram, nodes, laneIds, manifest, label) {
 
 // Full validation of one diagram object. Returns { errors, meta } — meta is the
 // index entry when valid.
-function validateDiagram(diagram, manifest, idFromDir) {
+function validateDiagram(diagram, manifest, idFromDir, repoRoot) {
   const errs = [];
   if (!diagram || typeof diagram !== "object") return { errors: [`${idFromDir}: diagram.json is not an object`] };
   const id = diagram.id;
@@ -120,12 +120,12 @@ function validateDiagram(diagram, manifest, idFromDir) {
     if (laneIds.has(l.id)) errs.push(`${id || idFromDir}: duplicate lane id "${l.id}"`);
     laneIds.add(l.id);
   }
-  errs.push(...validateNodeGroup(diagram, diagram.nodes, laneIds, manifest, `${id || idFromDir}`));
+  errs.push(...validateNodeGroup(repoRoot, diagram, diagram.nodes, laneIds, manifest, `${id || idFromDir}`));
   if (diagram.branches != null) {
     if (!Array.isArray(diagram.branches)) errs.push(`${id || idFromDir}: branches must be an array`);
     else diagram.branches.forEach((br, i) => {
       if (!br || !br.label || !Array.isArray(br.nodes)) { errs.push(`${id || idFromDir}: branch ${i} needs a label + nodes`); return; }
-      errs.push(...validateNodeGroup(diagram, br.nodes, laneIds, manifest, `${id || idFromDir} · branch "${br.label}"`));
+      errs.push(...validateNodeGroup(repoRoot, diagram, br.nodes, laneIds, manifest, `${id || idFromDir} · branch "${br.label}"`));
     });
   }
   const nodes = Array.isArray(diagram.nodes) ? diagram.nodes : [];
@@ -161,7 +161,7 @@ function buildDiagrams(repoRoot, opts = {}) {
     if (!fs.existsSync(file)) { errors.push(`${dirId}: missing diagram.json`); continue; }
     let diagram;
     try { diagram = readJson(file); } catch (e) { errors.push(`${dirId}: invalid JSON — ${e.message}`); continue; }
-    const { errors: errs, meta } = validateDiagram(diagram, manifest, dirId);
+    const { errors: errs, meta } = validateDiagram(diagram, manifest, dirId, repoRoot);
     if (errs.length) { errors.push(...errs); continue; }
     if (seenIds.has(meta.id)) { errors.push(`duplicate diagram id "${meta.id}"`); continue; }
     seenIds.add(meta.id);

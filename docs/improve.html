@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Run Fey's worktree-isolated, rubric-scored, hard-gated auto-improve loop and keep only measurable improvements.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Improve loop · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="improve">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Improve</p>
+          <h1>Climb one measurable step at a time.</h1>
+          <p>Fey isolates an optimization run, turns intent into a rubric, collects parallel proposals, applies one change, and commits only when hard gates pass and the score clears the configured delta.</p>
+        </header>
+
+        <p class="doc-lead">The model proposes and evaluates. The CLI owns state, scope, objective commands, score math, protected criteria, fingerprints, revert behavior, and the final handoff boundary.</p>
+
+        <h2 id="mental-model">The loop</h2>
+        <div class="flow-figure">
+          <div class="flow-row">
+            <div class="flow-box"><span>Explore</span><strong>Directions and rubric</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Attempt</span><strong>One coherent change</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Decide</span><strong>Keep or exact revert</strong></div>
+          </div>
+        </div>
+
+        <div class="doc-callout sky">
+          <strong>Acceptance rule</strong>
+          <p>A candidate is kept only when the evaluated working tree is unchanged, objective checks pass, scope and hygiene gates pass, protected criteria do not regress, and the total score improves by at least <code>minDelta</code>.</p>
+        </div>
+
+        <h2 id="initialize">Initialize an isolated run</h2>
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>start a codebase run</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js init . --target codebase --title "Optimize this repository"</code></pre>
+        </div>
+
+        <p>By default, <code>init</code> creates a sibling git worktree on <code>fey-opt-&lt;source-branch&gt;</code>. The original checkout remains usable. The command prints the worktree path; every later improve command and the Fey viewer must target that path.</p>
+
+        <div class="doc-callout red">
+          <strong>Dirty source tree</strong>
+          <p>Initialization refuses pending changes by default. Commit or stash them first. Use <code>--checkpoint</code> only when you explicitly want Fey to stage and commit every current tracked and untracked change before creating the worktree.</p>
+        </div>
+
+        <div class="definition-list">
+          <dl class="definition-row"><dt><code>--target codebase</code></dt><dd>Evaluate the repository as a whole.</dd></dl>
+          <dl class="definition-row"><dt><code>--target diff</code></dt><dd>Optimize the purpose and quality of a specified set of changes. Pair it with <code>--scope</code>.</dd></dl>
+          <dl class="definition-row"><dt><code>--checkpoint</code></dt><dd>Explicitly stage and commit all pending source-checkout changes before isolation. Never add it automatically.</dd></dl>
+          <dl class="definition-row"><dt><code>--no-worktree</code></dt><dd>Use a separate branch in the current folder. The user’s checkout is temporarily switched.</dd></dl>
+          <dl class="definition-row"><dt><code>--no-branch</code></dt><dd>Run in place without isolation. This is the least safe option.</dd></dl>
+        </div>
+
+        <h2 id="directions">Name directions, not tasks</h2>
+        <p>Directions are the axes worth improving: hot-path latency, error handling, cohesion, accessibility, test reliability, API clarity, or another repository-specific property. They explain why a candidate matters without prematurely choosing the implementation.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey/improve/directions.json</span></div>
+          <pre><code>[
+  {
+    "id": "robustness",
+    "title": "Error handling and edge cases",
+    "description": "Make failures explicit and recoverable.",
+    "rationale": "Several call sites currently lose error context."
+  }
+]</code></pre>
+        </div>
+
+        <h2 id="rubric">Turn directions into a small rubric</h2>
+        <p>Use four to eight criteria. Weights express relative importance; each score has its own maximum. Mark properties that must never trade away with <code>"protected": true</code>.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey/improve/rubric.json</span></div>
+          <pre><code>{
+  "scale": "0..10 per criterion",
+  "criteria": [
+    {
+      "id": "correctness",
+      "title": "Tests and build pass",
+      "weight": 3,
+      "max": 10,
+      "direction": "robustness",
+      "protected": true
+    },
+    {
+      "id": "clarity",
+      "title": "Failure paths are explicit",
+      "weight": 2,
+      "max": 10,
+      "direction": "robustness"
+    }
+  ]
+}</code></pre>
+        </div>
+
+        <p><code>record</code> rejects missing, unknown, non-numeric, and out-of-range scores. It no longer treats omission as a convenient way to remove a weak criterion from the denominator.</p>
+
+        <h2 id="gate-config">Configure hard gates</h2>
+        <p>The rubric measures degree. <code>gate.json</code> defines conditions that must simply hold.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey/improve/gate.json</span></div>
+          <pre><code>{
+  "minDelta": 1,
+  "protectedCriteria": ["correctness"],
+  "requiredChecks": [
+    {
+      "name": "tests",
+      "command": "npm test",
+      "timeoutSec": 300
+    }
+  ],
+  "finalChecks": [],
+  "allowedPaths": ["src/**", "test/**"],
+  "deniedPaths": [".github/workflows/release.yml"],
+  "maxFilesChanged": 20,
+  "maxLinesChanged": 800,
+  "maxIterations": 20,
+  "allowDependencyChanges": false,
+  "forbidBinaryFiles": true,
+  "scanSecrets": true
+}</code></pre>
+        </div>
+
+        <div class="gate-list">
+          <div class="gate-row"><strong>Objective commands</strong><p>Tests, build, lint, type-check, or repository-specific validation run at baseline and for every candidate.</p><span class="gate-state">Hard gate</span></div>
+          <div class="gate-row"><strong>Scope</strong><p>Allowed and denied path patterns keep one step inside the intended surface.</p><span class="gate-state">Hard gate</span></div>
+          <div class="gate-row"><strong>Change budget</strong><p>File, line, and iteration ceilings prevent a “single step” from becoming an unreviewable rewrite.</p><span class="gate-state">Hard gate</span></div>
+          <div class="gate-row"><strong>Hygiene</strong><p>Dependency changes need opt-in; binary additions and high-confidence secret material are rejected by default.</p><span class="gate-state">Hard gate</span></div>
+          <div class="gate-row"><strong>Score delta</strong><p>The total must beat the previous best by at least <code>minDelta</code>.</p><span class="gate-state">Decision</span></div>
+        </div>
+
+        <p>A check may use one portable <code>command</code>, or separate <code>bash</code> and <code>powershell</code> fields when validation syntax differs by platform.</p>
+
+        <h2 id="baseline">Record the baseline</h2>
+        <p>Score the untouched worktree and place the score file under <code>.fey/improve/scratch/</code>. Baseline recording requires a code-clean tree and runs all required objective commands.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>record iteration 0</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js record &lt;worktree&gt; --scores .fey/improve/scratch/baseline-scores.json --baseline --label "baseline"</code></pre>
+        </div>
+
+        <p>The stored evaluation includes the git HEAD, a working-tree fingerprint, gate and rubric hashes, changed-file summary, objective-check results, Node version, and platform. Candidate acceptance later verifies that the evidence still describes the same state.</p>
+
+        <h2 id="proposals">Collect proposals without editing code</h2>
+        <p>Set the run to <code>proposing</code>, then dispatch task or custom proposal agents—normally one per direction. Each writes one JSON proposal into the next iteration’s scratch directory.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>proposal contract</span></div>
+          <pre><code>{
+  "direction": "robustness",
+  "idea": "Preserve the original error as a cause.",
+  "detail": "Wrap the adapter error with operation context.",
+  "expectedImpact": "Clarity 5 → 8; behavior unchanged.",
+  "risk": "low"
+}</code></pre>
+        </div>
+
+        <p>The transition back to <code>running</code> validates proposal files and refuses to continue if proposal-phase agents changed production code. This check does not rely only on subagent hook delivery.</p>
+
+        <h2 id="candidate">Apply and evaluate one candidate</h2>
+        <p>Choose one proposal. Apply exactly one coherent change so the score delta can be attributed to a specific move.</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>inspect the candidate gate</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js candidate-check &lt;worktree&gt;
+node .github/skills/fey-improve/bin/fey-improve.js record &lt;worktree&gt; --scores .fey/improve/scratch/iter-1-scores.json --label "preserve adapter error cause"</code></pre>
+        </div>
+
+        <p>Recording freezes the score against the current fingerprint. Editing code, the rubric, directions, or gate configuration afterward invalidates acceptance and requires a fresh record.</p>
+
+        <h2 id="acceptance">Commit only through the acceptance gate</h2>
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>accept or reject</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js commit-if-better &lt;worktree&gt;</code></pre>
+        </div>
+
+        <p>On success, Fey stages only the evaluated code paths plus <code>.fey/improve/</code>, creates the optimization commit, records its SHA, and leaves a traceable history. Direct git commits are blocked by the optional hook because they bypass the evidence check.</p>
+
+        <p>On rejection:</p>
+
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>restore the previous kept state</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js revert &lt;worktree&gt;</code></pre>
+        </div>
+
+        <p>Revert restores tracked files and removes candidate-created untracked files. The rejected score stays in history so the Optimize view shows the attempted move.</p>
+
+        <h2 id="statuses">Run statuses</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Status</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td><code>exploring</code></td><td>Directions, rubric, and gate configuration are being authored.</td></tr>
+              <tr><td><code>proposing</code></td><td>Subagents may write proposals under scratch but may not edit production code.</td></tr>
+              <tr><td><code>running</code></td><td>A candidate may be applied, evaluated, accepted, or reverted.</td></tr>
+              <tr><td><code>paused</code></td><td>The clean run is intentionally stopping between iterations.</td></tr>
+              <tr><td><code>interrupted</code></td><td>An external failure needs recovery before normal progress resumes.</td></tr>
+              <tr><td><code>done</code></td><td>Final checks pass and the run is ready for user-reviewed handoff.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="handoff">Hand the result back</h2>
+        <p>Marking a run done executes final checks and commits the final run-state update.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>finish and inspect</span></div>
+          <pre><code>node .github/skills/fey-improve/bin/fey-improve.js status &lt;worktree&gt; --set done
+node .github/skills/fey-improve/bin/fey-improve.js handoff-check &lt;worktree&gt;</code></pre>
+        </div>
+
+        <p>Handoff is always user-initiated:</p>
+        <div class="definition-list">
+          <dl class="definition-row"><dt><code>finalize</code></dt><dd>Squash the net run onto the source branch as uncommitted changes. This is the default review path.</dd></dl>
+          <dl class="definition-row"><dt><code>merge</code></dt><dd>Create a no-fast-forward merge that keeps the work branch as one revertible unit.</dd></dl>
+          <dl class="definition-row"><dt><code>cleanup</code></dt><dd>Remove the worktree and optionally its branch after the result is safely reviewed or landed.</dd></dl>
+        </div>
+
+        <h2 id="viewer">Optimize view</h2>
+        <p>Run <code>node .github/skills/fey-create/bin/fey.js serve &lt;worktree&gt;</code>. The Optimize tab reads directions, rubric, proposal scratch, and history to show the best-so-far frontier, accepted and rejected attempts, criterion scores, summaries, and commit SHAs. It works even when the repository has no create bundle.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

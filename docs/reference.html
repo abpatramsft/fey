@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fey CLI command, configuration, environment variable, file layout, and exit behavior reference.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>CLI reference · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="reference">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Reference</p>
+          <h1>The deterministic surface area.</h1>
+          <p>These commands read and write Fey’s repository-local artifacts. The skill tells Copilot when to use them; this reference explains what each one guarantees.</p>
+        </header>
+
+        <h2 id="invocation">Invocation</h2>
+        <p>Until the npm package is published, invoke the scripts through Node from the target repository:</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>current executable paths</span></div>
+          <pre><code>node .github/skills/fey-create/bin/fey.js &lt;command&gt; .
+node .github/skills/fey-improve/bin/fey-improve.js &lt;command&gt; .</code></pre>
+        </div>
+
+        <p>The skill documentation often uses the shorter future-facing names <code>fey</code> and <code>fey-improve</code>. They refer to these same scripts.</p>
+
+        <h2 id="create-cli">Create CLI</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Command</th><th>Options</th><th>Behavior</th></tr></thead>
+            <tbody>
+              <tr><td><code>index &lt;repo&gt;</code></td><td><code>--builtin</code></td><td>Run the repository indexer or built-in fallback, validate spans, and atomically update the manifest catalog.</td></tr>
+              <tr><td><code>merge &lt;repo&gt;</code></td><td><code>--clean</code></td><td>Validate page scratch units and reduce them into pages and manifest records. Optionally remove scratch after success.</td></tr>
+              <tr><td><code>diagrams build &lt;repo&gt;</code></td><td><code>--clean</code></td><td>Validate every diagram scratch file and atomically build the diagram index and per-flow files.</td></tr>
+              <tr><td><code>diff-hunks &lt;repo&gt;</code></td><td><code>--json</code>, <code>--full</code></td><td>List current tracked and net-new diff hunks, stable signatures, and attribution state.</td></tr>
+              <tr><td><code>coverage &lt;repo&gt;</code></td><td><code>--json</code></td><td>Report total and per-file anchored-line coverage.</td></tr>
+              <tr><td><code>gate &lt;repo&gt;</code></td><td>—</td><td>Compare coverage against <code>.fey/create/gate.json</code>.</td></tr>
+              <tr><td><code>drift-gate &lt;repo&gt;</code></td><td>—</td><td>Require a drift note for every visible working-tree hunk.</td></tr>
+              <tr><td><code>stop-check &lt;repo&gt;</code></td><td>—</td><td>Combine coverage, drift attribution, and dashboard liveness for the stop hook.</td></tr>
+              <tr><td><code>serve &lt;repo&gt;</code></td><td><code>--port N</code></td><td>Start the local viewer and write its runtime marker to <code>.fey/serve.json</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="improve-cli">Improve CLI</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Command</th><th>Key options</th><th>Behavior</th></tr></thead>
+            <tbody>
+              <tr><td><code>init &lt;repo&gt;</code></td><td><code>--target</code>, <code>--scope</code>, <code>--checkpoint</code>, <code>--no-worktree</code>, <code>--no-branch</code>, <code>--branch</code>, <code>--worktree-path</code></td><td>Create the improve state and default isolated worktree. Refuse a dirty source tree unless checkpointing is explicit.</td></tr>
+              <tr><td><code>preflight &lt;repo&gt;</code></td><td><code>--basic</code>, <code>--json</code></td><td>Validate repository, run state, branch/worktree coordinates, directions, rubric, gate configuration, and history structure.</td></tr>
+              <tr><td><code>candidate-check &lt;repo&gt;</code></td><td><code>--baseline</code>, <code>--quick</code>, <code>--json</code></td><td>Run scope, size, dependency, binary, secret, state, and optionally objective-command gates.</td></tr>
+              <tr><td><code>record &lt;repo&gt;</code></td><td><code>--scores</code>, <code>--label</code>, <code>--summary</code>, <code>--baseline</code></td><td>Validate the full score vector, run required checks, bind evidence to the working tree, and append or replace the pending iteration.</td></tr>
+              <tr><td><code>status &lt;repo&gt;</code></td><td><code>--json</code>, <code>--set …</code></td><td>Inspect the run or move it between exploring, proposing, running, paused, interrupted, and done.</td></tr>
+              <tr><td><code>commit-if-better &lt;repo&gt;</code></td><td><code>--message</code></td><td>Revalidate evidence, protected criteria, and score delta before staging evaluated paths and committing.</td></tr>
+              <tr><td><code>revert &lt;repo&gt;</code></td><td>—</td><td>Restore tracked candidate changes, remove candidate-created untracked files, and preserve the rejected history entry.</td></tr>
+              <tr><td><code>stop-check &lt;repo&gt;</code></td><td><code>--json</code></td><td>Require clean code, one baseline, no pending candidate, and paused or done status.</td></tr>
+              <tr><td><code>handoff-check &lt;repo&gt;</code></td><td><code>--json</code></td><td>Require done status, a kept improvement, clean code, no pending iteration, and passing final checks.</td></tr>
+              <tr><td><code>finalize &lt;repo&gt;</code></td><td>—</td><td>Land the work branch on the source checkout as uncommitted changes for review.</td></tr>
+              <tr><td><code>merge &lt;repo&gt;</code></td><td><code>--into</code></td><td>Create a no-fast-forward merge of the accepted run after the handoff gate passes.</td></tr>
+              <tr><td><code>cleanup &lt;repo&gt;</code></td><td><code>--delete-branch</code></td><td>Remove the improve worktree, shared pointer, and optionally the work branch.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="create-config">Create configuration</h2>
+        <div class="definition-list">
+          <dl class="definition-row"><dt><code>.fey/create/gate.json</code></dt><dd><code>minTotalCoverage</code>, <code>minFileCoverage</code>, and per-file exclusion patterns.</dd></dl>
+          <dl class="definition-row"><dt><code>.fey/create/indexer.mjs</code></dt><dd>Repository-specific, dependency-free Node script that prints the span catalog contract.</dd></dl>
+          <dl class="definition-row"><dt><code>.fey/create/drift-notes.json</code></dt><dd>Logical flows, stated intent, authorship, and per-hunk rationale keyed to current signatures.</dd></dl>
+          <dl class="definition-row"><dt><code>.fey/create/verifications.json</code></dt><dd>Reviewer confirmations for claims.</dd></dl>
+          <dl class="definition-row"><dt><code>.fey/create/page-notes.json</code></dt><dd>Per-page confirm or flag memory for future regeneration.</dd></dl>
+        </div>
+
+        <h2 id="improve-config">Improve gate fields</h2>
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Field</th><th>Default</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>minDelta</code></td><td><code>1</code></td><td>Minimum weighted-score gain required for acceptance.</td></tr>
+              <tr><td><code>protectedCriteria</code></td><td><code>[]</code></td><td>Additional criterion IDs that may not regress.</td></tr>
+              <tr><td><code>requiredChecks</code></td><td><code>[]</code></td><td>Objective commands run for baseline and candidates.</td></tr>
+              <tr><td><code>finalChecks</code></td><td><code>[]</code></td><td>Commands run at handoff; falls back to required checks when empty.</td></tr>
+              <tr><td><code>allowedPaths</code></td><td><code>[]</code></td><td>Glob-like paths a candidate may change. Empty means the repository.</td></tr>
+              <tr><td><code>deniedPaths</code></td><td><code>[]</code></td><td>Paths that remain forbidden even when an allowed pattern matches.</td></tr>
+              <tr><td><code>maxFilesChanged</code></td><td><code>20</code></td><td>Maximum code files in one candidate.</td></tr>
+              <tr><td><code>maxLinesChanged</code></td><td><code>800</code></td><td>Maximum added plus removed lines in one candidate.</td></tr>
+              <tr><td><code>maxIterations</code></td><td><code>20</code></td><td>Maximum candidate iteration count.</td></tr>
+              <tr><td><code>allowDependencyChanges</code></td><td><code>false</code></td><td>Whether manifests and lockfiles may change.</td></tr>
+              <tr><td><code>forbidBinaryFiles</code></td><td><code>true</code></td><td>Reject binary candidate files.</td></tr>
+              <tr><td><code>scanSecrets</code></td><td><code>true</code></td><td>Scan added content for high-confidence credential and private-key patterns.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="environment">Environment variables</h2>
+        <div class="definition-list">
+          <dl class="definition-row"><dt><code>FEY_HOME</code></dt><dd>Optional alternate location the hook dispatcher searches for Fey skills and binaries.</dd></dl>
+          <dl class="definition-row"><dt><code>FEY_COPILOT_BIN</code></dt><dd>Override the Copilot executable used by the viewer’s Ask feature.</dd></dl>
+          <dl class="definition-row"><dt><code>FEY_ASK_MODEL</code></dt><dd>Pin the model used for local read-only Ask invocations.</dd></dl>
+        </div>
+
+        <h2 id="file-layout">Repository data layout</h2>
+        <div class="code-block">
+          <div class="code-block-head"><span>.fey bundle</span></div>
+          <pre><code>.fey/
+├── serve.json
+├── create/
+│   ├── indexer.mjs
+│   ├── manifest.json
+│   ├── pages/*.md
+│   ├── scratch/&lt;unit&gt;/
+│   ├── diagrams/
+│   ├── drift-notes.json
+│   ├── verifications.json
+│   ├── page-notes.json
+│   └── gate.json
+└── improve/
+    ├── run.json
+    ├── directions.json
+    ├── rubric.json
+    ├── gate.json
+    ├── history.json
+    └── scratch/iter-&lt;n&gt;/</code></pre>
+        </div>
+
+        <h2 id="exit-behavior">Exit behavior</h2>
+        <p>Validation and gate commands return zero when the requested invariant passes or deliberately has nothing to evaluate. They return non-zero with an actionable report when work is malformed, incomplete, out of scope, stale, or rejected.</p>
+
+        <p><code>commit-if-better</code> returns non-zero for a rejected candidate and records that decision when the failure is a score delta or protected-criterion regression. A stale fingerprint or malformed gate is not recorded as a valid rejected experiment; fix it and record again.</p>
+
+        <h2 id="testing">Repository test</h2>
+        <div class="code-block" data-copy>
+          <div class="code-block-head"><span>end-to-end disposable sample</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>node --test .github/skills/fey-improve/test/improve.test.js</code></pre>
+        </div>
+
+        <p>The test creates a temporary git repository and exercises worktree isolation, lifecycle hooks, objective commands, accepted and rejected iterations, score tampering, rename scope escapes, secret detection, exact revert, dashboard readiness, finalization, and cleanup.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

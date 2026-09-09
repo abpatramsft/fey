@@ -20,7 +20,7 @@
 const fs = require("fs");
 const path = require("path");
 const M = require("./manifest");
-const { makeSpan, fileLineCount } = require("./coverage");
+const { makeSpan } = require("./coverage");
 
 function scratchDir(repoRoot) {
   return path.join(repoRoot, ".fey", "create", "scratch");
@@ -75,16 +75,8 @@ function readUnit(repoRoot, unitId) {
 // line-range span (path#L<a>-<b> within the file). Returns null if OK, else a reason.
 function anchorProblem(repoRoot, manifest, anchor) {
   if (typeof anchor !== "string" || !anchor) return "anchor must be a non-empty string";
-  const span = makeSpan(manifest, anchor);
+  const span = makeSpan(repoRoot, manifest, anchor);
   if (!span) return `anchor "${anchor}" is not in the span catalog and is not a valid line-range (path#L10-25)`;
-  // Named catalog spans are already validated at index time; only re-check the
-  // synthesized line-range form against the current file.
-  if (span.kind === "range") {
-    const lines = fileLineCount(path.join(repoRoot, span.file));
-    if (lines === 0) return `anchor "${anchor}" points at a missing file`;
-    if (span.startLine < 1 || span.endLine > lines)
-      return `anchor "${anchor}" is out of range (file has ${lines} lines)`;
-  }
   return null;
 }
 

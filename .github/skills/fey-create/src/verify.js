@@ -42,7 +42,7 @@ function saveVerifications(repoRoot, data) {
 function blockContentHash(repoRoot, manifest, block) {
   const parts = [];
   for (const spanId of block.anchors) {
-    const s = makeSpan(manifest, spanId);
+    const s = makeSpan(repoRoot, manifest, spanId);
     if (!s) { parts.push(`${spanId}:?`); continue; }
     let slice = "";
     try {

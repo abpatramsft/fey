@@ -97,6 +97,32 @@ test("objective checks select the platform-specific command", () => {
   assert.match(result[0].output, /platform-ok/);
 });
 
+test("init refuses a dirty source tree unless checkpoint is explicit", (t) => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "fey-improve-dirty-"));
+  const repo = path.join(tempRoot, "sample");
+  const worktree = path.join(tempRoot, "worktree");
+  t.after(() => fs.rmSync(tempRoot, { recursive: true, force: true }));
+  fs.mkdirSync(repo, { recursive: true });
+  write(path.join(repo, "app.js"), "module.exports = 1;\n");
+  run("git", ["init", "-b", "main"], { cwd: repo });
+  git(repo, "config", "user.name", "Fey Test");
+  git(repo, "config", "user.email", "fey-test@example.invalid");
+  git(repo, "add", "app.js");
+  git(repo, "commit", "-m", "baseline");
+  write(path.join(repo, "app.js"), "module.exports = 2;\n");
+
+  const improveBin = path.join(productRoot, ".github", "skills", "fey-improve", "bin", "fey-improve.js");
+  const refused = nodeCli(improveBin, ["init", repo], { cwd: repo, expect: 1 });
+  assert.match(`${refused.stdout}\n${refused.stderr}`, /working tree is dirty/);
+  assert.equal(git(repo, "rev-list", "--count", "HEAD"), "1");
+  assert.match(git(repo, "status", "--porcelain"), /app\.js/);
+
+  nodeCli(improveBin, ["init", repo, "--checkpoint", "--worktree-path", worktree], { cwd: repo });
+  assert.equal(git(repo, "rev-list", "--count", "HEAD"), "2");
+  assert.equal(git(repo, "status", "--porcelain"), "");
+  nodeCli(improveBin, ["cleanup", repo, "--delete-branch"], { cwd: repo });
+});
+
 test("fey-improve gates and hooks work end to end on a sample repository", async (t) => {
   const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "fey-improve-e2e-"));
   const repo = path.join(tempRoot, "sample");

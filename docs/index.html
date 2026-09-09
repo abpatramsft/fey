@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Fey turns a codebase into an anchored wiki, clickable flow diagrams, narrated drift, and a gated improvement loop for GitHub Copilot CLI.">
+  <meta name="theme-color" content="#0E1A15">
+  <meta property="og:title" content="Fey — documentation that can point to the line">
+  <meta property="og:description" content="An explainable codebase wiki and gated improvement loop, grounded in your source.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://abpatramsft.github.io/fey/">
+  <title>Fey — documentation that can point to the line</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body data-page="home">
+  <div data-site-header></div>
+
+  <main id="main-content" class="home-main">
+    <section class="hero">
+      <div class="site-shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Explainability for agent-built code</p>
+          <h1>Documentation that can <span>point to the line.</span></h1>
+          <p class="hero-lede">Fey turns a repository into an anchored wiki, clickable flow maps, narrated working-tree drift, and a gated improvement loop. The model explains; deterministic tools verify.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="getting-started.html">
+              Start with a repository
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="button button-secondary" href="principles.html">Read the trust model</a>
+          </div>
+          <div class="hero-command" data-copy data-copy-text="git clone https://github.com/abpatramsft/fey.git">
+            <code>git clone https://github.com/abpatramsft/fey.git</code>
+            <button class="copy-button" type="button">Copy</button>
+          </div>
+        </div>
+
+        <div class="anchor-stage" data-anchor-stage data-mode="create" aria-label="Interactive Fey evidence demonstration">
+          <div class="anchor-tabs" role="tablist" aria-label="Evidence examples">
+            <button class="anchor-tab is-active" type="button" role="tab" aria-selected="true" data-anchor-mode="create">Anchored claim</button>
+            <button class="anchor-tab" type="button" role="tab" aria-selected="false" data-anchor-mode="improve">Accepted change</button>
+            <button class="anchor-tab" type="button" role="tab" aria-selected="false" data-anchor-mode="drift">Explained drift</button>
+          </div>
+          <div class="anchor-scene">
+            <div class="claim-panel">
+              <div data-claim="create">
+                <div class="claim-kind">Wiki claim</div>
+                <p class="claim-text">Every explanation resolves to a span that exists in the repository.</p>
+                <p class="claim-note">Clicking the claim opens the exact file, symbol, and line range that supports it.</p>
+                <span class="claim-anchor">src/router.ts#Router.handle</span>
+              </div>
+              <div data-claim="improve" hidden>
+                <div class="claim-kind">Improve gate</div>
+                <p class="claim-text">A better-looking score cannot hide a correctness regression.</p>
+                <p class="claim-note">Protected criteria and objective commands must hold before Fey creates a commit.</p>
+                <span class="claim-anchor">acceptance · protected criteria</span>
+              </div>
+              <div data-claim="drift" hidden>
+                <div class="claim-kind">Working-tree intent</div>
+                <p class="claim-text">A changed hunk carries a reason and an author, not just red and green lines.</p>
+                <p class="claim-note">The stop hook blocks handoff while visible drift remains unattributed.</p>
+                <span class="claim-anchor">drift-notes.json · hunk signature</span>
+              </div>
+            </div>
+
+            <svg class="trace-svg" viewBox="0 0 120 60" aria-hidden="true">
+              <path class="trace-path trace-line" d="M3 30h111"/>
+              <path class="trace-path trace-wave" d="M3 30q10-18 20 0t20 0t20 0t20 0t20 0t20 0"/>
+              <circle class="trace-vertex" cx="58" cy="30" r="6"/>
+              <path d="m103 24 11 6-11 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+
+            <div class="evidence-panel">
+              <div class="evidence-head">
+                <span class="evidence-path">evidence · representative artifact</span>
+                <span class="evidence-state">validated</span>
+              </div>
+
+              <div class="evidence-pane is-active" data-evidence="create">
+                <div class="code-list" aria-label="Manifest anchor example">
+                  <div class="code-line"><span class="ln">41</span><code>{</code></div>
+                  <div class="code-line is-cited"><span class="ln">42</span><code>  "anchors": [</code></div>
+                  <div class="code-line is-cited"><span class="ln">43</span><code>    "src/router.ts#Router.handle"</code></div>
+                  <div class="code-line is-cited"><span class="ln">44</span><code>  ],</code></div>
+                  <div class="code-line"><span class="ln">45</span><code>  "origin": "ai",</code></div>
+                  <div class="code-line"><span class="ln">46</span><code>  "locked": false</code></div>
+                  <div class="code-line"><span class="ln">47</span><code>}</code></div>
+                </div>
+                <div class="evidence-foot">
+                  <div class="evidence-meta"><span>File</span><strong>src/router.ts</strong></div>
+                  <div class="evidence-meta"><span>Symbol</span><strong>Router.handle</strong></div>
+                  <div class="evidence-meta"><span>Freshness</span><strong>current</strong></div>
+                </div>
+              </div>
+
+              <div class="evidence-pane" data-evidence="improve">
+                <div class="code-list" aria-label="Improve acceptance output">
+                  <div class="code-line"><span class="ln">›</span><code>fey-improve acceptance gate</code></div>
+                  <div class="code-line is-cited"><span class="ln">✓</span><code>required checks: PASS</code></div>
+                  <div class="code-line is-cited"><span class="ln">✓</span><code>correctness: 10 → 10</code></div>
+                  <div class="code-line is-cited"><span class="ln">✓</span><code>score delta: +4.2</code></div>
+                  <div class="code-line"><span class="ln">✓</span><code>working tree fingerprint: current</code></div>
+                  <div class="code-line"><span class="ln">→</span><code>iteration committed</code></div>
+                </div>
+                <div class="evidence-foot">
+                  <div class="evidence-meta"><span>Worktree</span><strong>fey-opt-main</strong></div>
+                  <div class="evidence-meta"><span>Decision</span><strong>kept</strong></div>
+                  <div class="evidence-meta"><span>Evidence</span><strong>bound</strong></div>
+                </div>
+              </div>
+
+              <div class="evidence-pane" data-evidence="drift">
+                <div class="code-list" aria-label="Drift attribution example">
+                  <div class="code-line"><span class="ln">12</span><code>"intent": "Avoid stale cache reads",</code></div>
+                  <div class="code-line is-cited"><span class="ln">13</span><code>"author": "ai",</code></div>
+                  <div class="code-line is-cited"><span class="ln">14</span><code>"rationale": "Invalidate after write",</code></div>
+                  <div class="code-line is-cited"><span class="ln">15</span><code>"hunks": ["src/cache.ts:88:3:4"]</code></div>
+                  <div class="code-line"><span class="ln">16</span><code>}</code></div>
+                </div>
+                <div class="evidence-foot">
+                  <div class="evidence-meta"><span>Source</span><strong>git diff HEAD</strong></div>
+                  <div class="evidence-meta"><span>Attribution</span><strong>AI-led</strong></div>
+                  <div class="evidence-meta"><span>Review</span><strong>pending</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Core properties">
+      <div class="site-shell trust-strip-inner">
+        <div class="trust-item"><strong>Local</strong> Plain Markdown and JSON stay with the repository.</div>
+        <div class="trust-item"><strong>Language-agnostic</strong> A generated indexer adapts to the codebase.</div>
+        <div class="trust-item"><strong>Deterministic boundaries</strong> Validation, merging, gates, and scores run in code.</div>
+      </div>
+    </section>
+
+    <section class="section section-paper">
+      <div class="site-shell">
+        <div class="section-grid">
+          <p class="section-side-note">Fey gives generative work a narrow contract. Copilot decides what to explain; the CLI decides whether the references and artifacts are structurally valid.</p>
+          <div>
+            <p class="eyebrow amber">The contract</p>
+            <h2 class="section-title">The model writes the explanation. The code checks its footing.</h2>
+            <p class="section-intro">The creative parts stay flexible. The bookkeeping does not. Every stage leaves a plain artifact that can be inspected, rerun, or rejected.</p>
+          </div>
+        </div>
+
+        <div class="contract-flow">
+          <article class="contract-step">
+            <span class="contract-index">Step 01</span>
+            <h3>Index the source</h3>
+            <p>A repository-specific script emits real files, symbols, and line ranges. Fey validates every span before it becomes citable.</p>
+          </article>
+          <article class="contract-step">
+            <span class="contract-index">Step 02</span>
+            <h3>Author against the catalog</h3>
+            <p>Copilot writes pages and diagrams using only accepted span IDs. It may choose the explanation, but it cannot invent the destination of a link.</p>
+          </article>
+          <article class="contract-step">
+            <span class="contract-index">Step 03</span>
+            <h3>Reduce deterministically</h3>
+            <p>Parallel scratch work is assembled only when anchors, IDs, markers, and diagram relationships pass the schema.</p>
+          </article>
+          <article class="contract-step">
+            <span class="contract-index">Step 04</span>
+            <h3>Keep the evidence visible</h3>
+            <p>The local viewer keeps prose beside source, flows beside nodes, and change rationale beside the diff that motivated it.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="product">
+      <div class="site-shell">
+        <div class="section-grid">
+          <p class="section-side-note">One viewer, five ways to understand the same repository. The visual density changes; the vocabulary does not.</p>
+          <div>
+            <p class="eyebrow">The workspace</p>
+            <h2 class="section-title">Move from system shape to exact evidence without leaving the thread.</h2>
+            <p class="section-intro">Overview, Wiki, Diagrams, Drift, and Optimize read from the same in-repository bundle.</p>
+          </div>
+        </div>
+
+        <div class="view-stage" data-view-stage>
+          <div class="view-tabs" role="tablist" aria-label="Fey product views">
+            <div class="view-tabs-label">Views</div>
+            <button class="view-tab is-active" type="button" role="tab" aria-selected="true" data-view-tab="overview">Overview <span>system</span></button>
+            <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-tab="wiki">Wiki <span>claims</span></button>
+            <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-tab="diagrams">Diagrams <span>flow</span></button>
+            <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-tab="drift">Drift <span>change</span></button>
+            <button class="view-tab" type="button" role="tab" aria-selected="false" data-view-tab="optimize">Optimize <span>score</span></button>
+          </div>
+
+          <div class="view-canvas">
+            <div class="view-panel is-active" data-view-panel="overview">
+              <div class="product-frame">
+                <div class="product-bar"><div class="product-dots"><i></i><i></i><i></i></div><span class="product-title">example-repository · overview</span></div>
+                <div class="product-body">
+                  <span class="product-kicker">Reading path</span>
+                  <h3>See the architecture before choosing where to enter.</h3>
+                  <p>Fey groups indexed files into named layers and measures how much source each page actually explains.</p>
+                  <div class="mini-metrics">
+                    <div class="mini-metric"><span>Languages</span><strong>Any</strong></div>
+                    <div class="mini-metric"><span>Product views</span><strong>5</strong></div>
+                    <div class="mini-metric"><span>Storage</span><strong>Plain files</strong></div>
+                  </div>
+                  <div class="mini-file-list">
+                    <div class="mini-file"><span>Interface · routes and commands</span><div class="mini-bar"><i style="width:92%"></i></div><span>covered</span></div>
+                    <div class="mini-file"><span>Domain · decisions and state</span><div class="mini-bar"><i style="width:84%"></i></div><span>covered</span></div>
+                    <div class="mini-file"><span>Infrastructure · adapters</span><div class="mini-bar"><i style="width:71%"></i></div><span>review</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="view-panel" data-view-panel="wiki">
+              <div class="product-frame">
+                <div class="product-bar"><div class="product-dots"><i></i><i></i><i></i></div><span class="product-title">request lifecycle · anchored wiki</span></div>
+                <div class="product-body">
+                  <span class="product-kicker">Claim beside source</span>
+                  <h3>Read the sentence, then inspect the line that earns it.</h3>
+                  <div class="claim-demo">
+                    <div class="claim-demo-copy">
+                      <p>The request handler validates input before handing work to the domain service.</p>
+                      <span class="claim-chip">src/api.ts#handleRequest · L42–68</span>
+                    </div>
+                    <div class="claim-demo-code">
+                      <div class="code-line"><span class="ln">42</span><code>async function handleRequest(req) {</code></div>
+                      <div class="code-line is-cited"><span class="ln">43</span><code>  const input = validate(req.body);</code></div>
+                      <div class="code-line is-cited"><span class="ln">44</span><code>  return service.execute(input);</code></div>
+                      <div class="code-line"><span class="ln">45</span><code>}</code></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="view-panel" data-view-panel="diagrams">
+              <div class="product-frame">
+                <div class="product-bar"><div class="product-dots"><i></i><i></i><i></i></div><span class="product-title">place order · static control path</span></div>
+                <div class="product-body">
+                  <span class="product-kicker">Entry point to effect</span>
+                  <h3>Follow a plausible call path. Click any resolved node to see its code.</h3>
+                  <div class="diagram-mini">
+                    <div class="lane" data-label="route" style="left:18%"></div>
+                    <div class="lane" data-label="service" style="left:50%"></div>
+                    <div class="lane" data-label="store" style="left:82%"></div>
+                    <div class="diagram-call" style="left:18%;top:86px;width:32%"></div>
+                    <div class="diagram-call" style="left:50%;top:165px;width:32%"></div>
+                    <div class="diagram-call" style="left:18%;top:244px;width:64%"></div>
+                    <div class="diagram-node" style="left:calc(18% - 6px);top:80px"></div>
+                    <div class="diagram-node" style="left:calc(50% - 6px);top:159px"></div>
+                    <div class="diagram-node" style="left:calc(82% - 6px);top:238px"></div>
+                    <span class="diagram-label" style="left:23%;top:65px">validate</span>
+                    <span class="diagram-label" style="left:56%;top:144px">persist</span>
+                    <span class="diagram-label" style="left:43%;top:223px">respond</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="view-panel" data-view-panel="drift">
+              <div class="product-frame">
+                <div class="product-bar"><div class="product-dots"><i></i><i></i><i></i></div><span class="product-title">working tree · intent view</span></div>
+                <div class="product-body">
+                  <span class="product-kicker">Change as a story</span>
+                  <h3>Review why related hunks changed before unfolding the raw diff.</h3>
+                  <div class="drift-mini">
+                    <div class="drift-row"><div class="drift-spine"></div><div><h4>Invalidate the cache after a write</h4><p>Prevents the next reader from receiving stale state.</p></div><span class="drift-tag">AI-led</span></div>
+                    <div class="drift-row human"><div class="drift-spine"></div><div><h4>Raise the retry ceiling for imports</h4><p>Operator adjustment based on observed production latency.</p></div><span class="drift-tag">Human</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="view-panel" data-view-panel="optimize">
+              <div class="product-frame">
+                <div class="product-bar"><div class="product-dots"><i></i><i></i><i></i></div><span class="product-title">illustrative run · optimize</span></div>
+                <div class="product-body">
+                  <span class="product-kicker">Keep only the climb</span>
+                  <h3>See every attempt, the best-so-far frontier, and the evidence behind each decision.</h3>
+                  <div class="score-chart" aria-label="Illustrative hill-climb chart">
+                    <svg class="score-path" viewBox="0 0 600 230" preserveAspectRatio="none" aria-hidden="true">
+                      <path d="M0 190 L110 155 L215 165 L325 108 L430 128 L540 62 L600 62" fill="none" stroke="#5FB98A" stroke-width="3"/>
+                      <path d="M0 190 L110 155 L215 165 L325 108 L430 128 L540 62" fill="none" stroke="#7D8A83" stroke-width="1" stroke-dasharray="4 6"/>
+                    </svg>
+                    <i class="score-point" style="left:0;top:80%"></i>
+                    <i class="score-point" style="left:18%;top:64%"></i>
+                    <i class="score-point rejected" style="left:36%;top:69%"></i>
+                    <i class="score-point" style="left:54%;top:43%"></i>
+                    <i class="score-point rejected" style="left:72%;top:52%"></i>
+                    <i class="score-point" style="left:90%;top:22%"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-paper">
+      <div class="site-shell">
+        <div class="section-grid">
+          <p class="section-side-note">The visual grammar comes from Feynman diagrams because the product itself is about making relationships inspectable.</p>
+          <div>
+            <p class="eyebrow amber">Two verbs</p>
+            <h2 class="section-title">Create understanding. Improve without losing the thread.</h2>
+          </div>
+        </div>
+
+        <div class="mode-pair">
+          <article class="mode">
+            <svg class="mode-symbol" viewBox="0 0 190 46" aria-hidden="true">
+              <path d="M5 23h170" fill="none" stroke="#8D5A07" stroke-width="3" stroke-linecap="round"/>
+              <path d="m165 16 12 7-12 7" fill="none" stroke="#8D5A07" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="94" cy="23" r="6" fill="#F4B84E"/>
+            </svg>
+            <h3>Create</h3>
+            <p>A directed line: source becomes an indexed, anchored explanation that a reader can follow back to the code.</p>
+            <ul>
+              <li>Repository-specific span indexing</li>
+              <li>Anchored wiki pages and flow diagrams</li>
+              <li>Narrated working-tree drift and local Q&amp;A</li>
+            </ul>
+          </article>
+          <article class="mode mode-improve">
+            <svg class="mode-symbol" viewBox="0 0 190 46" aria-hidden="true">
+              <path d="M5 23q14-16 28 0t28 0t28 0t28 0t28 0t28 0" fill="none" stroke="#11637E" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="94" cy="23" r="6" fill="#67C1E0"/>
+            </svg>
+            <h3>Improve</h3>
+            <p>An exchange: propose, change, measure, and keep only the step that clears every hard gate and climbs the rubric.</p>
+            <ul>
+              <li>Isolated branch and worktree execution</li>
+              <li>Objective checks plus protected criteria</li>
+              <li>Reversible handoff as uncommitted changes or a merge</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark">
+      <div class="site-shell">
+        <div class="section-grid">
+          <p class="section-side-note">Fey does not claim that generated prose is automatically true. It makes the evidence close, the uncertainty visible, and the acceptance rules executable.</p>
+          <div>
+            <p class="eyebrow">Why trust it</p>
+            <h2 class="section-title">Confidence comes from boundaries, not from a more confident model.</h2>
+          </div>
+        </div>
+
+        <div class="principle-list">
+          <article class="principle"><span class="principle-code">Anchor first</span><h3>No invented destinations</h3><p>Pages and diagrams can cite only spans produced by a runnable indexer and accepted by the validator.</p></article>
+          <article class="principle"><span class="principle-code">Reduce in code</span><h3>Deterministic bookkeeping</h3><p>Merging, diagram assembly, coverage, scoring, and commit decisions do not ask a model to grade its own structure.</p></article>
+          <article class="principle"><span class="principle-code">Show drift</span><h3>Changes keep their intent</h3><p>Every visible hunk can carry rationale and authorship, so review starts with purpose and can unfold into proof.</p></article>
+          <article class="principle"><span class="principle-code">Revert exactly</span><h3>Rejected work stays rejected</h3><p>The improve loop restores tracked files and removes candidate-created untracked files before another step begins.</p></article>
+          <article class="principle"><span class="principle-code">Own the files</span><h3>Plain artifacts, local viewer</h3><p>The wiki, manifests, diagrams, notes, rubrics, and history remain readable JSON and Markdown inside the repository.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-paper">
+      <div class="site-shell quickstart">
+        <div>
+          <p class="eyebrow amber">First run</p>
+          <h2 class="section-title">Go from a repository to a viewable explanation.</h2>
+          <p class="section-intro">Fey is currently distributed as repository or personal Copilot skills. Clone it, copy the pieces you want, and ask Copilot to do the rest.</p>
+          <div class="quickstart-steps">
+            <article class="quickstart-step"><span>01</span><div><h3>Copy the skills</h3><p>Add <code>fey-create</code>, <code>fey-improve</code>, and optionally the hook bundle to your repository.</p></div></article>
+            <article class="quickstart-step"><span>02</span><div><h3>Ask for the outcome</h3><p>Say “Use fey to generate an explainable wiki for this repo.” Copilot loads the relevant skill.</p></div></article>
+            <article class="quickstart-step"><span>03</span><div><h3>Open the local viewer</h3><p>Fey serves Overview, Wiki, Diagrams, Drift, and Optimize from the generated <code>.fey/</code> bundle.</p></div></article>
+          </div>
+        </div>
+
+        <div class="terminal">
+          <div class="terminal-head"><div class="terminal-dots"><i></i><i></i><i></i></div><span>repository terminal</span></div>
+          <pre><span class="prompt">$</span> copilot
+
+<span class="sky">›</span> Use fey to generate an explainable wiki
+  for this repository.
+
+<span class="ok">✓</span> indexed repository spans
+<span class="ok">✓</span> validated anchored pages
+<span class="ok">✓</span> attributed working-tree drift
+<span class="ok">✓</span> serving http://localhost:4177
+
+<span class="comment"># Reopen the viewer later</span>
+<span class="prompt">$</span> node .github/skills/fey-create/bin/fey.js serve .</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="site-shell final-cta-inner">
+        <h2>Make the explanation answer to the code.</h2>
+        <a class="button button-primary" href="getting-started.html">Install Fey</a>
+      </div>
+    </section>
+  </main>
+
+  <div data-site-footer></div>
+</body>
+</html>

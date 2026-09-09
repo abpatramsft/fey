@@ -110,13 +110,16 @@ function cmdCoverage(repoRoot, opts) {
   }
   const cov = computeCoverage(repoRoot, manifest);
   if (opts.json) {
-    console.log(JSON.stringify({ totalPct: cov.totalPct, filesIndexed: cov.filesIndexed, perFile: cov.perFile }, null, 2));
+    console.log(JSON.stringify({ totalPct: cov.totalPct, filesIndexed: cov.filesIndexed, perFile: cov.perFile, invalidAnchors: cov.invalidAnchors }, null, 2));
     return;
   }
   console.log(`fey coverage: ${cov.totalPct}% of lines anchored (${cov.anchoredLines}/${cov.totalLines}), ${cov.filesIndexed} files`);
   for (const rel of cov.files) {
     const f = cov.perFile[rel];
     console.log(`  ${String(f.pct).padStart(3)}%  ${rel}  (${f.anchored}/${f.total})`);
+  }
+  if (cov.invalidAnchors.length) {
+    console.log(`  INVALID  ${cov.invalidAnchors.length} page anchor(s) do not resolve against the current repository`);
   }
 }
 
@@ -130,6 +133,7 @@ function evaluateGate(repoRoot) {
   const cov = computeCoverage(repoRoot, manifest);
 
   const totalPass = cov.totalPct >= cfg.minTotalCoverage;
+  const anchorFails = cov.invalidAnchors || [];
   const fileFails = [];
   for (const rel of cov.files) {
     const f = cov.perFile[rel];
@@ -137,13 +141,21 @@ function evaluateGate(repoRoot) {
     if (cfg.isExcluded(rel)) continue;      // opted out in gate.json
     if (f.pct < cfg.minFileCoverage) fileFails.push({ rel, ...f });
   }
-  const pass = totalPass && fileFails.length === 0;
+  const pass = totalPass && fileFails.length === 0 && anchorFails.length === 0;
 
   const lines = [];
   lines.push(`fey coverage gate: ${pass ? "PASSED" : "FAILED"}`);
   lines.push(`Thresholds (.fey/create/gate.json): total >= ${cfg.minTotalCoverage}%, per-file >= ${cfg.minFileCoverage}%`);
   lines.push("");
   lines.push(`Total coverage: ${cov.totalPct}%  (need >= ${cfg.minTotalCoverage}%)  ${totalPass ? "OK" : "MISS"}`);
+  if (anchorFails.length) {
+    lines.push("");
+    lines.push("Invalid page anchors:");
+    for (const a of anchorFails.slice(0, 40)) {
+      lines.push(`  [ ] ${a.pageId || "unknown page"} / ${a.blockId || "unknown block"} -> ${a.spanId}`);
+    }
+    if (anchorFails.length > 40) lines.push(`  ... and ${anchorFails.length - 40} more`);
+  }
   if (fileFails.length) {
     lines.push("");
     lines.push(`Files below ${cfg.minFileCoverage}%:`);

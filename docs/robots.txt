@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abpatramsft.github.io/fey/sitemap.xml

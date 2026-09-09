@@ -12,30 +12,59 @@ function fileLineCount(abs) {
   return fs.readFileSync(abs, "utf8").split(/\r?\n/).length;
 }
 
-// Resolve a span id to a span. Falls back to a synthesized line-range span for
-// ids of the form "path/to/file.ext#L10-25", so any file in any language can be
-// cited even when no symbol was auto-extracted.
-function makeSpan(manifest, spanId) {
-  const s = manifest.spans[spanId];
-  if (s) return s;
-  const m = /^(.+)#L(\d+)-(\d+)$/.exec(spanId);
+function repoFileLines(repoRoot, relFile) {
+  if (typeof relFile !== "string" || !relFile.trim() || path.isAbsolute(relFile)) return null;
+  const file = relFile.trim().replace(/\\/g, "/");
+  const abs = path.resolve(repoRoot, ...file.split("/"));
+  const relative = path.relative(repoRoot, abs);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return null;
+  try {
+    const realRoot = fs.realpathSync(repoRoot);
+    const realFile = fs.realpathSync(abs);
+    const realRelative = path.relative(realRoot, realFile);
+    if (!realRelative || realRelative.startsWith("..") || path.isAbsolute(realRelative)) return null;
+    if (!fs.statSync(realFile).isFile()) return null;
+    return { file, abs: realFile, lines: fs.readFileSync(realFile, "utf8").split(/\r?\n/) };
+  } catch {
+    return null;
+  }
+}
+
+// Resolve and validate a span against the current repository. Named spans are
+// rechecked so a corrupted/stale manifest cannot escape the repo; synthesized
+// line ranges must point at an existing file and stay inside its current bounds.
+function makeSpan(repoRoot, manifest, spanId) {
+  if (!repoRoot || !manifest || typeof spanId !== "string") return null;
+  const catalog = manifest.spans && typeof manifest.spans === "object" ? manifest.spans : {};
+  const stored = catalog[spanId];
+  if (stored) {
+    const source = repoFileLines(repoRoot, stored.file);
+    const startLine = Number(stored.startLine);
+    const endLine = Number(stored.endLine);
+    if (!source || !Number.isInteger(startLine) || !Number.isInteger(endLine) ||
+        startLine < 1 || endLine < startLine || endLine > source.lines.length) return null;
+    return { ...stored, file: source.file, startLine, endLine };
+  }
+  const m = /^(.+)#L([1-9]\d*)-([1-9]\d*)$/.exec(spanId);
   if (m) {
-    const startLine = +m[2], endLine = Math.max(+m[3], +m[2]);
-    return { id: spanId, file: m[1], symbol: `lines ${startLine}\u2013${endLine}`, kind: "range", startLine, endLine, hash: "" };
+    const startLine = Number(m[2]), endLine = Number(m[3]);
+    const source = repoFileLines(repoRoot, m[1]);
+    if (!source || endLine < startLine || endLine > source.lines.length) return null;
+    return { id: spanId, file: source.file, symbol: `lines ${startLine}\u2013${endLine}`, kind: "range", startLine, endLine, hash: "" };
   }
   return null;
 }
 
 // Which lines of each file are anchored by some wiki block (deduped).
-function anchoredRangesByFile(manifest) {
+function anchoredRangesByFile(repoRoot, manifest) {
   const byFile = {};
   const seen = new Set();
-  for (const page of manifest.pages) {
-    for (const block of page.blocks) {
-      for (const spanId of block.anchors) {
+  for (const page of manifest.pages || []) {
+    for (const block of page.blocks || []) {
+      for (const spanId of block.anchors || []) {
         if (seen.has(spanId)) continue;
         seen.add(spanId);
-        const span = makeSpan(manifest, spanId);
+        const span = makeSpan(repoRoot, manifest, spanId);
         if (!span) continue;
         (byFile[span.file] = byFile[span.file] || []).push([span.startLine, span.endLine]);
       }
@@ -55,7 +84,17 @@ function coveredLineCount(ranges) {
 //     perFile: { rel: { total, anchored, pct } }, files: [rel] }
 function computeCoverage(repoRoot, manifest) {
   const files = listFiles(repoRoot);
-  const ranges = anchoredRangesByFile(manifest);
+  const ranges = anchoredRangesByFile(repoRoot, manifest);
+  const invalidAnchors = [];
+  for (const page of manifest.pages || []) {
+    for (const block of page.blocks || []) {
+      for (const spanId of block.anchors || []) {
+        if (!makeSpan(repoRoot, manifest, spanId)) {
+          invalidAnchors.push({ pageId: page.id || "", blockId: block.id || "", spanId });
+        }
+      }
+    }
+  }
   const perFile = {};
   let totalLines = 0, anchoredLines = 0;
   for (const rel of files) {
@@ -72,7 +111,8 @@ function computeCoverage(repoRoot, manifest) {
     anchoredLines,
     totalPct: totalLines ? Math.round((anchoredLines / totalLines) * 100) : 0,
     perFile,
+    invalidAnchors,
   };
 }
 
-module.exports = { fileLineCount, makeSpan, computeCoverage };
+module.exports = { fileLineCount, makeSpan, computeCoverage, repoFileLines };

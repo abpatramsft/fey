@@ -4,7 +4,8 @@
 // ranges, and a content hash for staleness detection.
 //
 // Extraction quality is best-effort and per-language:
-//   • TypeScript / JavaScript  — TypeScript compiler API (exact)
+//   • TypeScript / JavaScript  — TypeScript compiler API when installed,
+//                                dependency-free brace fallback otherwise
 //   • Python                   — indentation-aware scanner (def / class / methods)
 //   • Brace languages          — a generic brace scanner (Go, Rust, Java, C#,
 //                                C/C++, Kotlin, Swift, Scala, PHP, …)
@@ -262,8 +263,11 @@ function indexFile(absFile, repoRoot) {
   const rel = relOf(absFile, repoRoot);
   const src = fs.readFileSync(absFile, "utf8");
   const ext = extOf(absFile);
+  if (["ts", "tsx", "js", "jsx", "mjs", "cjs"].includes(ext)) {
+    try { return indexTs(rel, src); }
+    catch { return indexBrace(rel, src); }
+  }
   try {
-    if (["ts", "tsx", "js", "jsx", "mjs", "cjs"].includes(ext)) return indexTs(rel, src);
     if (ext === "py" || ext === "pyi") return indexPython(rel, src);
     if (BRACE_EXT.has(ext)) return indexBrace(rel, src);
   } catch {

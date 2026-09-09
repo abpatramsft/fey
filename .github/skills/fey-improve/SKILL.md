@@ -29,6 +29,10 @@ fey's own `.fey/` bundle) as plain, hand-editable JSON. The run is shown as the
 React/TS, Go, anything — because *you* score the code against a rubric, rather than
 running language-specific rules.
 
+Command examples use `fey-improve` as shorthand. In the checked-in repository layout,
+invoke it as `node .github/skills/fey-improve/bin/fey-improve.js`; for a personal or
+plugin installation, resolve `bin/fey-improve.js` from this skill's own directory.
+
 ## The loop at a glance
 
 ```
@@ -91,9 +95,8 @@ fey-improve init <repo> --target codebase --title "Optimize <repo>"
 
 `init` does two things, in order:
 
-1. **Quarantines the run in a dedicated git worktree.** It first commits any pending
-   work on the current branch (a "checkpoint" commit so nothing is lost and the
-   branch point is clean), then checks out `fey-opt-<current-branch>` in a **separate
+1. **Quarantines the run in a dedicated git worktree.** It requires a clean source
+   checkout, then checks out `fey-opt-<current-branch>` in a **separate
    worktree folder** (a sibling directory, e.g. `<repo>.fey-opt-<branch>`). The whole
    loop runs there — **your own checkout is never disturbed**, so you can keep working
    on the source branch in parallel. Every scaffold file and every optimization commit
@@ -102,6 +105,8 @@ fey-improve init <repo> --target codebase --title "Optimize <repo>"
    - `--no-worktree` — use an in-place branch checkout instead (swap `fey-opt-*` into
      the current folder, the legacy behavior).
    - `--no-branch` — optimize in place on the current branch (no isolation at all).
+   - `--checkpoint` — explicitly stage and commit every pending source-checkout change
+     before isolation. Never add this flag without the user's approval.
    - `--branch <name>` / `--worktree-path <dir>` — override the branch name / location.
 2. **Scaffolds `.fey/improve/`** (in the worktree) with empty `directions.json`,
    `rubric.json`, `history.json`, `gate.json`, and `scratch/`, and records
@@ -418,7 +423,7 @@ keep, or delete it themselves.
 ## CLI reference
 
 ```
-fey-improve init  <repo> --target codebase|diff [--title "…"] [--scope "…"] [--no-worktree] [--no-branch] [--branch <name>] [--worktree-path <dir>]
+fey-improve init  <repo> --target codebase|diff [--title "…"] [--scope "…"] [--checkpoint] [--no-worktree] [--no-branch] [--branch <name>] [--worktree-path <dir>]
 fey-improve preflight <repo> [--basic] [--json]
 fey-improve candidate-check <repo> [--baseline] [--quick] [--json]
 fey-improve record <repo> --scores <file.json> [--label "…"] [--summary "…"] [--baseline]
@@ -432,9 +437,10 @@ fey-improve merge  <repo> [--into <branch>]   # alt: --no-ff merge of fey-opt-<s
 fey-improve cleanup <repo> [--delete-branch]  # remove the run's worktree (and optionally its branch)
 ```
 
-`init` checkpoints the current branch, then checks out `fey-opt-<current-branch>` in a
-dedicated **worktree** (use `--no-worktree` for an in-place checkout, `--no-branch` for
-no isolation). Run every later command and `fey serve` against the **worktree path**
+`init` requires a clean current branch, then checks out `fey-opt-<current-branch>` in a
+dedicated **worktree** (use explicit `--checkpoint` to commit pending work,
+`--no-worktree` for an in-place checkout, or `--no-branch` for no isolation). Run every
+later command and `fey serve` against the **worktree path**
 `init` prints. `finalize` lands the result as uncommitted changes on the source branch;
 `merge` folds the branch back as a commit; `cleanup` tears the worktree down. The
 dashboard is fey's Optimize tab — run `fey serve <worktree-path>` to view a run.

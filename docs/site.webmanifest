@@ -1,0 +1,15 @@
+{
+  "name": "Fey documentation",
+  "short_name": "Fey",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0E1A15",
+  "theme_color": "#0E1A15",
+  "icons": [
+    {
+      "src": "assets/fey-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

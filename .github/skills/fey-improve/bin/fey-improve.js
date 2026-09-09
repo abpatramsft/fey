@@ -3,7 +3,7 @@
 // fey-improve CLI — the deterministic scaffolding for a Karpathy-style
 // auto-improve (hill-climbing) loop over any codebase, in any language.
 //
-//   fey-improve init <repo> --target codebase|diff [--title "..."] [--no-worktree] [--no-branch]
+//   fey-improve init <repo> --target codebase|diff [--title "..."] [--checkpoint] [--no-worktree] [--no-branch]
 //   fey-improve record <repo> --scores <file.json> [--label ..] [--summary ..] [--baseline]
 //   fey-improve status <repo> [--json]
 //   fey-improve commit-if-better <repo> [--message "..."]
@@ -12,8 +12,8 @@
 //   fey-improve merge  <repo> [--into <branch>]  # merge the run branch back (user-confirmed)
 //   fey-improve cleanup <repo> [--delete-branch] # remove the run's worktree/branch
 //
-// Isolation: `init` commits any pending work on the current branch (a checkpoint),
-// then checks out `fey-opt-<current-branch>` in a dedicated git *worktree* (a
+// Isolation: `init` requires a clean current branch unless --checkpoint explicitly
+// commits all pending work, then checks out `fey-opt-<current-branch>` in a dedicated git *worktree* (a
 // separate folder) so the whole loop runs without disturbing the user's own
 // checkout. Every optimization commit is quarantined on that branch. When done,
 // `fey-improve finalize` lands the net result onto the source branch as
@@ -64,6 +64,15 @@ function branchExists(repoRoot, name) {
 }
 function workingTreeDirty(repoRoot) {
   try { return git(repoRoot, ["status", "--porcelain"]).length > 0; } catch { return false; }
+}
+function checkpointDirtyTree(repoRoot, source, rest) {
+  if (!workingTreeDirty(repoRoot)) return;
+  if (!rest.includes("--checkpoint")) {
+    throw new Error("working tree is dirty — commit or stash it first, or rerun init with --checkpoint to explicitly commit all pending changes");
+  }
+  git(repoRoot, ["add", "-A"]);
+  git(repoRoot, ["commit", "-m", `chore(fey-opt): checkpoint pending work on ${source} before optimization run`]);
+  console.log(`fey-improve: checkpointed pending changes on ${source} because --checkpoint was supplied.`);
 }
 function optimizationTreeDirty(repoRoot) {
   const codeDirty = G.collectChanges(repoRoot).fileCount > 0;
@@ -125,8 +134,8 @@ function worktreeForBranch(repoRoot, branch) {
 // The default isolation strategy: run the whole loop inside a dedicated git
 // *worktree* checked out on `fey-opt-<source>`. The user's own checkout is never
 // disturbed — they keep working on the source branch while the loop runs in a
-// separate folder. We still commit any pending work on the source branch first
-// (a checkpoint, so nothing is lost and the branch point is clean).
+// separate folder. A dirty source branch is refused unless --checkpoint explicitly
+// creates a checkpoint commit first.
 // Returns { sourceBranch, workBranch, worktreePath, mainWorktree }.
 function setupWorktree(repoRoot, rest) {
   const source = currentBranch(repoRoot);
@@ -140,11 +149,7 @@ function setupWorktree(repoRoot, rest) {
     return { sourceBranch: source.replace(/^fey-opt-/, ""), workBranch: source, worktreePath: repoRoot, mainWorktree: repoRoot };
   }
   const work = flagVal(rest, "--branch") || `fey-opt-${source}`;
-  if (workingTreeDirty(repoRoot)) {
-    git(repoRoot, ["add", "-A"]);
-    git(repoRoot, ["commit", "-m", `chore(fey-opt): checkpoint pending work on ${source} before optimization run`]);
-    console.log(`fey-improve: committed pending changes on ${source} (nothing is lost).`);
-  }
+  checkpointDirtyTree(repoRoot, source, rest);
   const existing = worktreeForBranch(repoRoot, work);
   let worktreePath = flagVal(rest, "--worktree-path") || defaultWorktreePath(repoRoot, work);
   if (existing) {
@@ -160,8 +165,8 @@ function setupWorktree(repoRoot, rest) {
   return { sourceBranch: source, workBranch: work, worktreePath: path.resolve(worktreePath), mainWorktree: path.resolve(repoRoot) };
 }
 
-// The legacy in-place isolation strategy (used with `--no-worktree`): commit any
-// pending work on the current (source) branch, then check out `fey-opt-<source>`
+// The legacy in-place isolation strategy (used with `--no-worktree`): require a
+// clean current branch (or explicit --checkpoint), then check out `fey-opt-<source>`
 // *in the same folder*. Every optimization commit lands there; the user merges it
 // back with `fey-improve merge`. The default strategy is `setupWorktree`, which
 // keeps the user's checkout usable. Returns { sourceBranch, workBranch }.
@@ -176,11 +181,7 @@ function setupWorkBranch(repoRoot, rest) {
     return { sourceBranch: source.replace(/^fey-opt-/, ""), workBranch: source };
   }
   const work = flagVal(rest, "--branch") || `fey-opt-${source}`;
-  if (workingTreeDirty(repoRoot)) {
-    git(repoRoot, ["add", "-A"]);
-    git(repoRoot, ["commit", "-m", `chore(fey-opt): checkpoint pending work on ${source} before optimization run`]);
-    console.log(`fey-improve: committed pending changes on ${source} (nothing is lost).`);
-  }
+  checkpointDirtyTree(repoRoot, source, rest);
   if (branchExists(repoRoot, work)) {
     git(repoRoot, ["checkout", work]);
     console.log(`fey-improve: resumed existing work branch ${work}.`);
@@ -575,6 +576,7 @@ function main() {
     process.exit(1);
   }
   console.log("usage: fey-improve <init|preflight|candidate-check|record|status|commit-if-better|revert|stop-check|handoff-check|finalize|merge|cleanup> <repoDir> [options]");
+  console.log("  init safety: a dirty source tree is refused unless --checkpoint explicitly commits all pending changes");
   console.log("  (view the run in fey's dashboard: `fey serve <repoDir>` → Optimize tab)");
   process.exit(1);
 }

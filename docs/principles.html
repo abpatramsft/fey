@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The product, evidence, interaction, and visual design principles behind Fey.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Design principles · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="principles">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Reference · Principles</p>
+          <h1>Design for evidence, not for the appearance of certainty.</h1>
+          <p>Fey’s product behavior, file formats, diagrams, gates, writing, and visual identity all follow the same idea: a useful explanation keeps a visible route back to what makes it true.</p>
+        </header>
+
+        <p class="doc-lead">These principles are constraints for future features. They explain why Fey separates generative judgment from deterministic bookkeeping and why the interface looks like a working physicist’s board rather than a polished report detached from source.</p>
+
+        <h2 id="anchor-before-prose">Anchor before prose</h2>
+        <p>Generate the evidence catalog before writing the explanation. A model is good at choosing structure, analogy, and language. It should not also invent the file, symbol, or line range that appears to support its claim.</p>
+
+        <div class="doc-callout">
+          <strong>Product consequence</strong>
+          <p>Indexing is runnable and repeatable. Pages may cite only accepted IDs. The universal line-range form is available when symbol extraction cannot express the evidence honestly.</p>
+        </div>
+
+        <h2 id="deterministic-boundaries">Put deterministic code at trust boundaries</h2>
+        <p>Use generative reasoning where interpretation is valuable. Use ordinary code where a binary invariant can be checked.</p>
+
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Generative work</th><th>Deterministic boundary</th></tr></thead>
+            <tbody>
+              <tr><td>Choose useful wiki pages</td><td>Validate every referenced span</td></tr>
+              <tr><td>Describe a control flow</td><td>Validate roots, parents, lanes, cycles, and anchors</td></tr>
+              <tr><td>Explain a working-tree change</td><td>Require a note for every current hunk signature</td></tr>
+              <tr><td>Score subjective quality</td><td>Run objective commands and recompute the weighted total</td></tr>
+              <tr><td>Propose an improvement</td><td>Bind acceptance to a git-state fingerprint and exact revert</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="evidence-over-confidence">Prefer closer evidence over stronger language</h2>
+        <p>A claim is not trustworthy because it sounds measured. It is more useful when the reader can inspect the cited code, the current diff, the command result, or the score history without leaving the explanation.</p>
+
+        <p>Fey should avoid confidence badges that summarize too much. Show the file, symbol, line range, freshness, authorship, command, or gate that produced the state.</p>
+
+        <h2 id="honest-uncertainty">Keep uncertainty visible</h2>
+        <p>Static reading cannot resolve every call. Line overlap cannot detect every semantic dependency. Coverage cannot prove correctness. A model-authored rationale can still be wrong.</p>
+
+        <p>The interface should name these limits in the place where they matter:</p>
+        <ul>
+          <li>Unresolved diagram calls remain dashed and unanchored.</li>
+          <li>Missing drift attribution says “Unattributed” and fails the optional gate.</li>
+          <li>Coverage is labeled as anchored-line coverage, not documentation accuracy.</li>
+          <li>A failed hook explains the missing outcome instead of returning success-shaped output.</li>
+        </ul>
+
+        <h2 id="one-move">Make one attributable move</h2>
+        <p>The improve loop explores several directions in parallel but applies one coherent candidate at a time. This is not only a git preference. It preserves causal legibility: the score change can be attached to a specific decision.</p>
+
+        <div class="doc-callout sky">
+          <strong>Interaction consequence</strong>
+          <p>The Optimize view shows proposals as context, one picked move as the attempt, and one keep-or-revert decision. It should not flatten a batch of unrelated edits into one green point.</p>
+        </div>
+
+        <h2 id="reversible-default">Hand off reversibly</h2>
+        <p>Autonomous work should arrive in a form a maintainer can inspect and decline. Improve runs happen in an isolated worktree. The default <code>finalize</code> path lands accepted work as uncommitted source-branch changes rather than silently merging it.</p>
+
+        <p>Rejection also has a strong contract: tracked files return to the previous kept state and candidate-created untracked files disappear. The rejected score remains as evidence that the direction was tried.</p>
+
+        <h2 id="plain-files">Keep the durable state plain</h2>
+        <p>Markdown and JSON are intentionally ordinary. They can be reviewed in a pull request, edited without a proprietary client, copied between environments, and recovered when an agent session ends.</p>
+
+        <p>The local viewer is a projection of the bundle, not the only place where the information exists.</p>
+
+        <h2 id="writing">Write from the maintainer’s side of the screen</h2>
+        <p>Fey copy should name things people recognize and control. “Start the viewer” is clearer than “initialize the visualization runtime.” “Explain this hunk” is clearer than “populate attribution metadata.”</p>
+
+        <div class="definition-list">
+          <dl class="definition-row"><dt>Lead with the mechanism</dt><dd>State what the system does, then what that changes for the reader.</dd></dl>
+          <dl class="definition-row"><dt>Keep nouns stable</dt><dd>A span, claim, hunk, proposal, gate, or iteration should keep the same name across the skill, CLI, viewer, and documentation.</dd></dl>
+          <dl class="definition-row"><dt>Make failure actionable</dt><dd>Name the invalid file, missing anchor, failed command, dirty path, or next command. Do not apologize or return a vague fallback.</dd></dl>
+          <dl class="definition-row"><dt>Do not manufacture proof</dt><dd>Examples must be labeled as examples. Product claims should describe behavior present in the repository.</dd></dl>
+        </div>
+
+        <h2 id="visual-grammar">Use a visual grammar that explains the product</h2>
+        <p>The Fey identity is based on two line types from a Feynman diagram. They are not decoration; they map to the two product verbs.</p>
+
+        <div class="definition-list">
+          <dl class="definition-row"><dt>Directed chalk line</dt><dd><strong>Create.</strong> Source moves into an indexed explanation. Amber marks the evidence vertex where a claim meets accepted code.</dd></dl>
+          <dl class="definition-row"><dt>Sky-blue wave</dt><dd><strong>Improve.</strong> A proposal and a metric exchange information until the loop finds a higher accepted state.</dd></dl>
+          <dl class="definition-row"><dt>Chalk sheet</dt><dd><strong>Evidence.</strong> Light surfaces hold source, commands, schemas, and artifacts; the dark board holds questions and claims.</dd></dl>
+          <dl class="definition-row"><dt>Faded chalk</dt><dd><strong>Context.</strong> Secondary information recedes without disappearing.</dd></dl>
+        </div>
+
+        <div class="flow-figure">
+          <svg viewBox="0 0 720 220" role="img" aria-labelledby="grammar-title grammar-desc">
+            <title id="grammar-title">Fey visual grammar</title>
+            <desc id="grammar-desc">A directed amber-marked line represents creating an explanation. A sky wave represents the improve exchange.</desc>
+            <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#7D8A83">
+              <text x="40" y="35">create · directed evidence</text>
+              <text x="40" y="145">improve · measured exchange</text>
+            </g>
+            <path d="M40 78h610" fill="none" stroke="#8D5A07" stroke-width="4" stroke-linecap="round"/>
+            <path d="m632 68 18 10-18 10" fill="none" stroke="#8D5A07" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="350" cy="78" r="9" fill="#F4B84E"/>
+            <path d="M40 182q25-26 50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0t50 0" fill="none" stroke="#11637E" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="350" cy="182" r="9" fill="#67C1E0"/>
+          </svg>
+        </div>
+
+        <h2 id="restraint">Spend visual boldness where it teaches</h2>
+        <p>The memorable interaction should be the relationship between a claim and its evidence—not generic motion around every section. Fey uses one orchestrated provenance trace in the home hero, then keeps documentation quiet: stable widths, thin rules, readable code, and restrained state color.</p>
+
+        <p>Motion must preserve meaning when disabled. Keyboard focus must reveal every interactive relationship that hover reveals. Mobile layouts should reorder claim and evidence vertically rather than shrinking a desktop diagram until neither can be read.</p>
+
+        <h2 id="future-features">A test for future features</h2>
+        <p>Before adding a feature, ask:</p>
+        <ol>
+          <li>What concrete maintainer question does this answer?</li>
+          <li>What artifact or source makes the answer inspectable?</li>
+          <li>Which part requires generative judgment?</li>
+          <li>Which invariant can ordinary code enforce?</li>
+          <li>How does failure remain explicit and recoverable?</li>
+          <li>Can the durable result survive without the viewer?</li>
+        </ol>
+
+        <p>If the feature cannot answer those questions, it probably adds presentation without adding explainability.</p>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>

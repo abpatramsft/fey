@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Understand Fey claims, source spans, line-range anchors, block metadata, locks, pins, verification, and coverage.">
+  <meta name="theme-color" content="#0E1A15">
+  <title>Claims and anchors · Fey documentation</title>
+  <link rel="icon" href="assets/fey-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body class="docs-page" data-page="anchors">
+  <div data-site-header></div>
+  <div class="docs-layout">
+    <aside class="docs-sidebar" data-doc-sidebar aria-label="Documentation navigation"></aside>
+    <main class="docs-main" id="main-content">
+      <article class="doc-article" data-doc-content>
+        <header class="doc-hero">
+          <p class="eyebrow">Create · Concepts</p>
+          <h1>Claims stay one interaction away from their evidence.</h1>
+          <p>An anchor is the stable join between explanatory prose and a concrete span in the repository. It is what lets Fey show its work instead of presenting generated documentation as an authority.</p>
+        </header>
+
+        <p class="doc-lead">Anchors do not make prose automatically correct. They make the supporting source explicit, inspectable, and structurally valid.</p>
+
+        <h2 id="mental-model">The mental model</h2>
+        <div class="flow-figure" aria-label="Claim to source relationship">
+          <div class="flow-row">
+            <div class="flow-box"><span>Claim</span><strong>“The handler validates input first.”</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Anchor</span><strong>src/api.ts#handleRequest</strong></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-box"><span>Source span</span><strong>Lines 42–68, current hash</strong></div>
+          </div>
+        </div>
+
+        <p>The prose, link, and source have different jobs. The prose helps a person understand. The anchor identifies what the prose claims to explain. The source remains the final evidence when the two disagree.</p>
+
+        <h2 id="span-id">Symbol anchors</h2>
+        <p>The indexer emits a repository-relative file and a citable symbol. Fey derives an ID with this shape:</p>
+
+        <div class="code-block" data-copy data-copy-text="src/orders/service.py#OrderService.place_order">
+          <div class="code-block-head"><span>span ID</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>src/orders/service.py#OrderService.place_order</code></pre>
+        </div>
+
+        <p>Qualify members enough to avoid collisions. A method should normally include its class or module owner. The final manifest also records line boundaries, kind, and a content hash derived from the source.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>manifest span</span></div>
+          <pre><code>{
+  "id": "src/orders/service.py#OrderService.place_order",
+  "file": "src/orders/service.py",
+  "symbol": "OrderService.place_order",
+  "kind": "method",
+  "startLine": 24,
+  "endLine": 68,
+  "hash": "…"
+}</code></pre>
+        </div>
+
+        <h2 id="line-range">Universal line-range anchors</h2>
+        <p>Not every meaningful region has a discoverable symbol. Configuration, module-level setup, templates, generated glue, and unusual languages still need a way to be cited.</p>
+
+        <div class="code-block" data-copy data-copy-text="config/routes.yaml#L14-27">
+          <div class="code-block-head"><span>line-range anchor</span><button class="copy-button" type="button">Copy</button></div>
+          <pre><code>config/routes.yaml#L14-27</code></pre>
+        </div>
+
+        <p>The server synthesizes this span from the file when it is requested. The file and bounds must still exist. This makes every line citable without pretending that a parser found a symbol.</p>
+
+        <div class="doc-callout sky">
+          <strong>Honest fallback</strong>
+          <p>A raw line range is better than an invented symbol. Fey prefers an explicit limitation over a more polished but unverifiable link.</p>
+        </div>
+
+        <h2 id="blocks">How a page binds prose to anchors</h2>
+        <p>A page is human-readable Markdown. A block record carries the machine-readable relationship between one marked prose claim and one or more accepted spans.</p>
+
+        <div class="code-block">
+          <div class="code-block-head"><span>page and block contract</span></div>
+          <pre><code><span class="comment">&lt;!-- olo:request-validation --&gt;</span>
+The request handler validates the payload before
+passing work to the domain service.
+
+{
+  "id": "request-validation",
+  "anchors": [
+    "src/api.ts#handleRequest",
+    "src/domain/service.ts#Service.execute"
+  ],
+  "origin": "ai"
+}</code></pre>
+        </div>
+
+        <p>The reducer checks that every marker has exactly one block, every block has a marker, IDs are unique, and every referenced anchor resolves. It writes nothing when one unit breaks the contract.</p>
+
+        <h2 id="multiple-anchors">When one claim needs several spans</h2>
+        <p>Use multiple anchors when a sentence describes a relationship—such as a route delegating to a service, a command loading configuration before execution, or an error path that crosses modules. Keep the block narrow enough that all cited spans support the same claim.</p>
+
+        <div class="doc-callout">
+          <strong>Avoid anchor dumping</strong>
+          <p>Attaching ten loosely related symbols to a paragraph does not make it better supported. Split the prose until each block expresses one inspectable idea.</p>
+        </div>
+
+        <h2 id="locks-pins">Locks, pins, and review memory</h2>
+        <div class="definition-list">
+          <dl class="definition-row"><dt>Locked block</dt><dd>Preserve the human-edited prose during regeneration. The system may refresh surrounding content, but it should not rewrite this claim.</dd></dl>
+          <dl class="definition-row"><dt>Pinned anchor</dt><dd>Treat the selected anchor as intentional ground truth for the block rather than automatically moving it to a nearby span.</dd></dl>
+          <dl class="definition-row"><dt>Verification</dt><dd>Record that a reviewer confirmed a claim against the current source. Verification is separate from git commits.</dd></dl>
+          <dl class="definition-row"><dt>Page note</dt><dd>Keep a reviewer’s confirm or flag note beside the page so a later generation can respect known concerns.</dd></dl>
+        </div>
+
+        <h2 id="freshness">Freshness and drift</h2>
+        <p>Fey computes working-tree drift from git rather than treating a stored content hash as the whole freshness model. When changed lines overlap a claim’s anchored range, the Drift view raises that claim for review. A change elsewhere can still matter semantically, so hashes and line overlap are evidence—not a replacement for judgment.</p>
+
+        <h2 id="coverage">What coverage can and cannot say</h2>
+        <p>Coverage asks a narrow question: what share of indexed source lines falls inside at least one anchor? It is useful for finding files that the wiki ignores.</p>
+
+        <div class="table-wrap">
+          <table class="doc-table">
+            <thead><tr><th>Coverage can tell you</th><th>Coverage cannot tell you</th></tr></thead>
+            <tbody>
+              <tr><td>Which indexed files have little or no explanation</td><td>Whether the explanation is semantically correct</td></tr>
+              <tr><td>Whether a map-reduce unit missed part of its assigned file set</td><td>Whether the page architecture is useful to a new reader</td></tr>
+              <tr><td>Whether a repository clears an agreed documentation floor</td><td>Whether every important runtime path was statically discoverable</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2 id="failure-modes">Failure behavior</h2>
+        <p>Anchor failures should be explicit and leave prior valid output intact.</p>
+        <ul>
+          <li>A missing file, invalid line range, duplicate ID, or malformed indexer output makes <code>fey index</code> fail.</li>
+          <li>An unknown block anchor, duplicate page ID, or marker mismatch makes <code>fey merge</code> fail atomically.</li>
+          <li>An unresolved diagram call is marked unresolved and carries no anchor rather than pointing at guessed code.</li>
+          <li>An un-attributed live diff hunk remains visible as such and fails the optional stop gate.</li>
+        </ul>
+
+        <div class="doc-pager" data-doc-pager></div>
+      </article>
+    </main>
+    <aside class="docs-toc" data-doc-toc aria-label="On this page"></aside>
+  </div>
+  <div class="docs-menu-backdrop"></div>
+  <nav class="mobile-doc-controls" data-mobile-doc-controls aria-label="Documentation controls"></nav>
+</body>
+</html>
