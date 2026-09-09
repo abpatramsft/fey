@@ -66,12 +66,28 @@ def main() -> None:
         load(page, "index.html")
         skip_box = page.locator(".skip-link").bounding_box()
         assert skip_box is not None and skip_box["y"] + skip_box["height"] <= 0
-        page.locator('[data-anchor-mode="improve"]').click()
-        assert page.locator('[data-evidence="improve"]').is_visible()
-        assert page.locator('[data-claim="improve"]').is_visible()
+        assert page.locator("[data-fey-node]").count() == 4
+        initial_capability = page.locator("[data-feynman-stage]").get_attribute("data-active")
+        page.wait_for_timeout(2100)
+        assert page.locator("[data-feynman-stage]").get_attribute("data-active") != initial_capability
+        page.locator('[data-fey-node="optimize"]').hover()
+        page.wait_for_timeout(100)
+        assert page.locator("[data-feynman-stage]").get_attribute("data-active") == "optimize"
+        assert page.locator('[data-fey-edge="optimize"]').is_visible()
+        page.locator('[data-fey-node="wiki"]').focus()
+        assert page.locator("[data-feynman-stage]").get_attribute("data-active") == "wiki"
         page.locator('[data-view-tab="diagrams"]').click()
         assert page.locator('[data-view-panel="diagrams"]').is_visible()
         page.screenshot(path=str(ARTIFACT_DIR / "home-desktop.png"), full_page=True)
+
+        page.set_viewport_size({"width": 1000, "height": 900})
+        load(page, "index.html")
+        hero_copy = page.locator(".hero-copy").bounding_box()
+        hero_map = page.locator(".feynman-stage").bounding_box()
+        assert hero_copy is not None and hero_map is not None
+        assert hero_map["y"] > hero_copy["y"]
+        assert_no_overflow(page, "tablet index.html")
+        page.set_viewport_size({"width": 1440, "height": 1000})
 
         load(page, "improve.html")
         assert page.locator(".docs-sidebar").is_visible()
@@ -99,6 +115,8 @@ def main() -> None:
         assert page.evaluate("getComputedStyle(document.body).overflow") != "hidden"
         page.set_viewport_size({"width": 390, "height": 844})
         page.wait_for_timeout(100)
+        assert page.locator(".feynman-map").evaluate("(element) => getComputedStyle(element).display") == "none"
+        assert page.locator("[data-fey-node]").count() == 4
         page.screenshot(path=str(ARTIFACT_DIR / "home-mobile.png"), full_page=True)
 
         load(page, "getting-started.html")
@@ -113,6 +131,15 @@ def main() -> None:
         assert menu_button.evaluate("(element) => element === document.activeElement")
         page.screenshot(path=str(ARTIFACT_DIR / "docs-mobile.png"), full_page=True)
         mobile.close()
+
+        reduced = browser.new_context(
+            viewport={"width": 1280, "height": 900},
+            reduced_motion="reduce",
+        )
+        page = reduced.new_page()
+        load(page, "index.html")
+        assert page.locator(".feynman-pulses").evaluate("(element) => getComputedStyle(element).display") == "none"
+        reduced.close()
 
         browser.close()
 

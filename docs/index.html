@@ -37,95 +37,114 @@
           </div>
         </div>
 
-        <div class="anchor-stage" data-anchor-stage data-mode="create" aria-label="Interactive Fey evidence demonstration">
-          <div class="anchor-tabs" role="tablist" aria-label="Evidence examples">
-            <button class="anchor-tab is-active" type="button" role="tab" aria-selected="true" data-anchor-mode="create">Anchored claim</button>
-            <button class="anchor-tab" type="button" role="tab" aria-selected="false" data-anchor-mode="improve">Accepted change</button>
-            <button class="anchor-tab" type="button" role="tab" aria-selected="false" data-anchor-mode="drift">Explained drift</button>
+        <div class="feynman-stage" data-feynman-stage data-active="wiki" aria-label="Animated map of Fey capabilities">
+          <div class="feynman-stage-head">
+            <span>repository interaction map</span>
+            <span>four evidence surfaces</span>
           </div>
-          <div class="anchor-scene">
-            <div class="claim-panel">
-              <div data-claim="create">
-                <div class="claim-kind">Wiki claim</div>
-                <p class="claim-text">Every explanation resolves to a span that exists in the repository.</p>
-                <p class="claim-note">Clicking the claim opens the exact file, symbol, and line range that supports it.</p>
-                <span class="claim-anchor">src/router.ts#Router.handle</span>
-              </div>
-              <div data-claim="improve" hidden>
-                <div class="claim-kind">Improve gate</div>
-                <p class="claim-text">A better-looking score cannot hide a correctness regression.</p>
-                <p class="claim-note">Protected criteria and objective commands must hold before Fey creates a commit.</p>
-                <span class="claim-anchor">acceptance · protected criteria</span>
-              </div>
-              <div data-claim="drift" hidden>
-                <div class="claim-kind">Working-tree intent</div>
-                <p class="claim-text">A changed hunk carries a reason and an author, not just red and green lines.</p>
-                <p class="claim-note">The stop hook blocks handoff while visible drift remains unattributed.</p>
-                <span class="claim-anchor">drift-notes.json · hunk signature</span>
-              </div>
-            </div>
 
-            <svg class="trace-svg" viewBox="0 0 120 60" aria-hidden="true">
-              <path class="trace-path trace-line" d="M3 30h111"/>
-              <path class="trace-path trace-wave" d="M3 30q10-18 20 0t20 0t20 0t20 0t20 0t20 0"/>
-              <circle class="trace-vertex" cx="58" cy="30" r="6"/>
-              <path d="m103 24 11 6-11 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="feynman-field">
+            <svg class="feynman-map" viewBox="0 0 720 520" role="img" aria-labelledby="feynman-title feynman-desc">
+              <title id="feynman-title">How Fey turns repository evidence into four product views</title>
+              <desc id="feynman-desc">A repository enters a central Fey validation vertex. Four outgoing paths lead to Wiki, Diagrams, Drift, and Optimize.</desc>
+              <defs>
+                <marker id="fey-arrow-chalk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10Z" fill="#ECE7D9"/>
+                </marker>
+                <marker id="fey-arrow-amber" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10Z" fill="#F4B84E"/>
+                </marker>
+                <marker id="fey-arrow-sky" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10Z" fill="#67C1E0"/>
+                </marker>
+                <marker id="fey-arrow-green" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M0 0 10 5 0 10Z" fill="#5FB98A"/>
+                </marker>
+              </defs>
+
+              <g class="feynman-dust" aria-hidden="true">
+                <circle cx="218" cy="111" r="1"/><circle cx="260" cy="76" r="1"/><circle cx="312" cy="102" r="1"/>
+                <circle cx="381" cy="72" r="1"/><circle cx="431" cy="117" r="1"/><circle cx="499" cy="93" r="1"/>
+                <circle cx="588" cy="141" r="1"/><circle cx="638" cy="175" r="1"/><circle cx="610" cy="279" r="1"/>
+                <circle cx="655" cy="334" r="1"/><circle cx="571" cy="407" r="1"/><circle cx="500" cy="452" r="1"/>
+                <circle cx="395" cy="436" r="1"/><circle cx="304" cy="467" r="1"/><circle cx="243" cy="417" r="1"/>
+                <circle cx="171" cy="377" r="1"/><circle cx="141" cy="292" r="1"/><circle cx="174" cy="208" r="1"/>
+              </g>
+
+              <path class="feynman-incoming" d="M36 260C112 260 176 260 276 260" pathLength="1" marker-end="url(#fey-arrow-chalk)"/>
+              <path class="feynman-edge edge-wiki" data-fey-edge="wiki" d="M326 244C386 196 424 122 514 82" pathLength="1" marker-end="url(#fey-arrow-amber)"/>
+              <path class="feynman-edge edge-diagrams" data-fey-edge="diagrams" d="M340 257C427 247 500 219 610 214" pathLength="1" marker-end="url(#fey-arrow-chalk)"/>
+              <path class="feynman-edge edge-drift" data-fey-edge="drift" d="M334 277C414 314 493 348 596 367" pathLength="1" marker-end="url(#fey-arrow-green)"/>
+              <path class="feynman-edge edge-optimize" data-fey-edge="optimize" d="M312 286C326 306 302 318 322 334C342 350 320 362 340 378C360 394 338 406 358 422C378 438 390 443 421 450" pathLength="1" marker-end="url(#fey-arrow-sky)"/>
+
+              <g class="feynman-mini-vertices" aria-hidden="true">
+                <circle class="vertex-wiki" cx="423" cy="133" r="5"/>
+                <circle class="vertex-diagrams" cx="482" cy="229" r="5"/>
+                <circle class="vertex-drift" cx="476" cy="339" r="5"/>
+                <circle class="vertex-optimize" cx="414" cy="286" r="5"/>
+              </g>
+
+              <g class="feynman-core" aria-hidden="true">
+                <circle class="core-orbit orbit-a" cx="306" cy="260" r="46"/>
+                <circle class="core-orbit orbit-b" cx="306" cy="260" r="31"/>
+                <path d="M306 226v34m0 0v34" fill="none" stroke="#ECE7D9" stroke-width="6" stroke-linecap="round"/>
+                <path d="M306 260q7-9 14 0t14 0t14 0" fill="none" stroke="#67C1E0" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="306" cy="260" r="8" fill="#F4B84E"/>
+              </g>
+
+              <g class="feynman-pulses" aria-hidden="true">
+                <circle class="pulse pulse-source" r="4" fill="#ECE7D9">
+                  <animateMotion dur="5.6s" repeatCount="indefinite" path="M36 260C112 260 176 260 276 260"/>
+                </circle>
+                <circle class="pulse pulse-wiki" r="4" fill="#F4B84E">
+                  <animateMotion begin=".45s" dur="5.6s" repeatCount="indefinite" path="M326 244C386 196 424 122 514 82"/>
+                </circle>
+                <circle class="pulse pulse-diagrams" r="4" fill="#ECE7D9">
+                  <animateMotion begin="1.55s" dur="5.6s" repeatCount="indefinite" path="M340 257C427 247 500 219 610 214"/>
+                </circle>
+                <circle class="pulse pulse-drift" r="4" fill="#5FB98A">
+                  <animateMotion begin="2.65s" dur="5.6s" repeatCount="indefinite" path="M334 277C414 314 493 348 596 367"/>
+                </circle>
+                <circle class="pulse pulse-optimize" r="4" fill="#67C1E0">
+                  <animateMotion begin="3.75s" dur="5.6s" repeatCount="indefinite" path="M312 286C326 306 302 318 322 334C342 350 320 362 340 378C360 394 338 406 358 422C378 438 390 443 421 450"/>
+                </circle>
+              </g>
             </svg>
 
-            <div class="evidence-panel">
-              <div class="evidence-head">
-                <span class="evidence-path">evidence · representative artifact</span>
-                <span class="evidence-state">validated</span>
-              </div>
-
-              <div class="evidence-pane is-active" data-evidence="create">
-                <div class="code-list" aria-label="Manifest anchor example">
-                  <div class="code-line"><span class="ln">41</span><code>{</code></div>
-                  <div class="code-line is-cited"><span class="ln">42</span><code>  "anchors": [</code></div>
-                  <div class="code-line is-cited"><span class="ln">43</span><code>    "src/router.ts#Router.handle"</code></div>
-                  <div class="code-line is-cited"><span class="ln">44</span><code>  ],</code></div>
-                  <div class="code-line"><span class="ln">45</span><code>  "origin": "ai",</code></div>
-                  <div class="code-line"><span class="ln">46</span><code>  "locked": false</code></div>
-                  <div class="code-line"><span class="ln">47</span><code>}</code></div>
-                </div>
-                <div class="evidence-foot">
-                  <div class="evidence-meta"><span>File</span><strong>src/router.ts</strong></div>
-                  <div class="evidence-meta"><span>Symbol</span><strong>Router.handle</strong></div>
-                  <div class="evidence-meta"><span>Freshness</span><strong>current</strong></div>
-                </div>
-              </div>
-
-              <div class="evidence-pane" data-evidence="improve">
-                <div class="code-list" aria-label="Improve acceptance output">
-                  <div class="code-line"><span class="ln">›</span><code>fey-improve acceptance gate</code></div>
-                  <div class="code-line is-cited"><span class="ln">✓</span><code>required checks: PASS</code></div>
-                  <div class="code-line is-cited"><span class="ln">✓</span><code>correctness: 10 → 10</code></div>
-                  <div class="code-line is-cited"><span class="ln">✓</span><code>score delta: +4.2</code></div>
-                  <div class="code-line"><span class="ln">✓</span><code>working tree fingerprint: current</code></div>
-                  <div class="code-line"><span class="ln">→</span><code>iteration committed</code></div>
-                </div>
-                <div class="evidence-foot">
-                  <div class="evidence-meta"><span>Worktree</span><strong>fey-opt-main</strong></div>
-                  <div class="evidence-meta"><span>Decision</span><strong>kept</strong></div>
-                  <div class="evidence-meta"><span>Evidence</span><strong>bound</strong></div>
-                </div>
-              </div>
-
-              <div class="evidence-pane" data-evidence="drift">
-                <div class="code-list" aria-label="Drift attribution example">
-                  <div class="code-line"><span class="ln">12</span><code>"intent": "Avoid stale cache reads",</code></div>
-                  <div class="code-line is-cited"><span class="ln">13</span><code>"author": "ai",</code></div>
-                  <div class="code-line is-cited"><span class="ln">14</span><code>"rationale": "Invalidate after write",</code></div>
-                  <div class="code-line is-cited"><span class="ln">15</span><code>"hunks": ["src/cache.ts:88:3:4"]</code></div>
-                  <div class="code-line"><span class="ln">16</span><code>}</code></div>
-                </div>
-                <div class="evidence-foot">
-                  <div class="evidence-meta"><span>Source</span><strong>git diff HEAD</strong></div>
-                  <div class="evidence-meta"><span>Attribution</span><strong>AI-led</strong></div>
-                  <div class="evidence-meta"><span>Review</span><strong>pending</strong></div>
-                </div>
-              </div>
+            <div class="feynman-source">
+              <span>Input</span>
+              <strong>Repository</strong>
+              <small>files · symbols · diffs · tests</small>
             </div>
+
+            <div class="feynman-core-label">
+              <span>fey</span>
+              <small>index · validate · explain</small>
+            </div>
+
+            <a class="feynman-node node-wiki is-active" data-fey-node="wiki" href="anchors.html">
+              <span class="node-index">01 · create</span>
+              <strong>Wiki</strong>
+              <small>Claims stay linked to exact source spans.</small>
+            </a>
+
+            <a class="feynman-node node-diagrams" data-fey-node="diagrams" href="diagrams.html">
+              <span class="node-index">02 · trace</span>
+              <strong>Diagrams</strong>
+              <small>Entry-point flows remain clickable down to code.</small>
+            </a>
+
+            <a class="feynman-node node-drift" data-fey-node="drift" href="drift.html">
+              <span class="node-index">03 · review</span>
+              <strong>Drift</strong>
+              <small>Working-tree changes carry intent and authorship.</small>
+            </a>
+
+            <a class="feynman-node node-optimize" data-fey-node="optimize" href="improve.html">
+              <span class="node-index">04 · improve</span>
+              <strong>Optimize</strong>
+              <small>Only gated score improvements become commits.</small>
+            </a>
           </div>
         </div>
       </div>

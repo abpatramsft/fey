@@ -247,27 +247,51 @@ function initTabs() {
   });
 }
 
-function initAnchorDemo() {
-  const stage = document.querySelector("[data-anchor-stage]");
+function initFeynmanHero() {
+  const stage = document.querySelector("[data-feynman-stage]");
   if (!stage) return;
-  const tabs = [...stage.querySelectorAll("[data-anchor-mode]")];
-  const panes = [...stage.querySelectorAll("[data-evidence]")];
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      const mode = tab.dataset.anchorMode;
-      stage.dataset.mode = mode;
-      tabs.forEach((item) => {
-        const active = item === tab;
-        item.classList.toggle("is-active", active);
-        item.setAttribute("aria-selected", String(active));
-      });
-      panes.forEach((pane) => pane.classList.toggle("is-active", pane.dataset.evidence === mode));
-      const claim = stage.querySelector(`[data-claim="${mode}"]`);
-      stage.querySelectorAll("[data-claim]").forEach((item) => {
-        item.hidden = item !== claim;
-      });
-    });
+  const nodes = [...stage.querySelectorAll("[data-fey-node]")];
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let activeIndex = 0;
+  let timer = null;
+
+  const setActive = (id) => {
+    const nextIndex = nodes.findIndex((node) => node.dataset.feyNode === id);
+    if (nextIndex >= 0) activeIndex = nextIndex;
+    stage.dataset.active = id;
+    nodes.forEach((node) => node.classList.toggle("is-active", node.dataset.feyNode === id));
+  };
+
+  const stop = () => {
+    if (timer) window.clearInterval(timer);
+    timer = null;
+  };
+
+  const start = () => {
+    stop();
+    if (reducedMotion.matches || document.hidden) return;
+    timer = window.setInterval(() => {
+      activeIndex = (activeIndex + 1) % nodes.length;
+      setActive(nodes[activeIndex].dataset.feyNode);
+    }, 1900);
+  };
+
+  nodes.forEach((node) => {
+    const activate = () => {
+      stop();
+      setActive(node.dataset.feyNode);
+    };
+    node.addEventListener("mouseenter", activate);
+    node.addEventListener("focus", activate);
+    node.addEventListener("mouseleave", start);
+    node.addEventListener("blur", start);
   });
+
+  document.addEventListener("visibilitychange", start);
+  if (reducedMotion.addEventListener) reducedMotion.addEventListener("change", start);
+  else reducedMotion.addListener(start);
+  setActive(nodes[0].dataset.feyNode);
+  start();
 }
 
 function initViewSwitcher() {
@@ -336,6 +360,6 @@ initDocPager();
 initNavigation();
 initCopyButtons();
 initTabs();
-initAnchorDemo();
+initFeynmanHero();
 initViewSwitcher();
 initToc();
